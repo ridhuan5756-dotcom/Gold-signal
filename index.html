@@ -6,8 +6,6 @@
     <title>AI Gold Signal Dashboard (XAU/USD Multi-Timeframe)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- TradingView Web Component Script -->
-    <script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-mini-chart.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     
@@ -41,7 +39,6 @@
         .glow-green { box-shadow: 0 0 15px rgba(34, 197, 94, 0.25); }
         .glow-yellow { box-shadow: 0 0 15px rgba(234, 179, 8, 0.25); }
         .glow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.25); }
-        tv-mini-chart { width: 100%; height: 100%; }
         .tf-card { transition: all 0.2s ease-in-out; }
         .tf-card:hover { transform: translateY(-2px); }
     </style>
@@ -128,7 +125,7 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 
                 <!-- M5 Button -->
-                <button onclick="selectTimeframe('M5')" id="btn-tf-M5" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl cursor-pointer hover:border-yellow-500/50">
+                <button type="button" onclick="selectTimeframe('M5')" id="btn-tf-M5" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl cursor-pointer hover:border-yellow-500/50">
                     <div class="flex justify-between items-center text-[11px] text-gray-400 font-bold mb-1">
                         <span id="label-M5">M5</span>
                         <span class="text-[9px] text-gray-500">Scalp</span>
@@ -138,9 +135,9 @@
                 </button>
 
                 <!-- M15 Button (Default Active) -->
-                <button onclick="selectTimeframe('M15')" id="btn-tf-M15" class="tf-card text-left bg-dark-bg/80 border-2 border-green-500 p-3.5 rounded-xl cursor-pointer glow-green">
+                <button type="button" onclick="selectTimeframe('M15')" id="btn-tf-M15" class="tf-card text-left bg-dark-bg/80 border-2 border-green-500 p-3.5 rounded-xl cursor-pointer glow-green">
                     <div class="flex justify-between items-center text-[11px] text-gray-400 font-bold mb-1">
-                        <span id="label-M15" class="text-green-400">M15 (Aktif)</span>
+                        <span id="label-M15" class="text-green-400 font-bold">M15 (Aktif)</span>
                         <span class="text-[9px] text-green-400/70">Intraday</span>
                     </div>
                     <div class="text-sm font-bold text-green-400 my-1">STRONG BUY</div>
@@ -148,7 +145,7 @@
                 </button>
 
                 <!-- H1 Button -->
-                <button onclick="selectTimeframe('H1')" id="btn-tf-H1" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl cursor-pointer hover:border-yellow-500/50">
+                <button type="button" onclick="selectTimeframe('H1')" id="btn-tf-H1" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl cursor-pointer hover:border-yellow-500/50">
                     <div class="flex justify-between items-center text-[11px] text-gray-400 font-bold mb-1">
                         <span id="label-H1">H1</span>
                         <span class="text-[9px] text-gray-500">Day Trade</span>
@@ -158,7 +155,7 @@
                 </button>
 
                 <!-- H4 Button -->
-                <button onclick="selectTimeframe('H4')" id="btn-tf-H4" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl cursor-pointer hover:border-yellow-500/50">
+                <button type="button" onclick="selectTimeframe('H4')" id="btn-tf-H4" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl cursor-pointer hover:border-yellow-500/50">
                     <div class="flex justify-between items-center text-[11px] text-gray-400 font-bold mb-1">
                         <span id="label-H4">H4</span>
                         <span class="text-[9px] text-gray-500">Swing Trend</span>
@@ -245,8 +242,8 @@
                     <span class="text-xs text-yellow-400 bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/20">TradingView Live</span>
                 </div>
                 
-                <div id="tv-chart-wrapper" class="h-72 sm:h-96 w-full rounded-xl overflow-hidden">
-                    <tv-mini-chart symbol="OANDA:XAUUSD" interval="15" theme="dark" width="100%" height="100%"></tv-mini-chart>
+                <div id="tv-chart-wrapper" class="h-72 sm:h-96 w-full rounded-xl overflow-hidden bg-black/40">
+                    <iframe id="tv-iframe" src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=OANDA%3AXAUUSD&interval=15&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=Asia%2FKuala_Lumpur" class="w-full h-full border-0"></iframe>
                 </div>
             </div>
 
@@ -309,11 +306,9 @@
 
     <!-- Script Analytics & Dynamic Timeframe Handler -->
     <script>
-        // Store Market Price Globally
         let currentMarketPrice = 4140.50;
         let selectedTimeframe = 'M15';
 
-        // Timeframe Preset Configurations
         const tfData = {
             'M5': {
                 label: 'M5 (Scalp)',
@@ -338,4 +333,5 @@
                 signal: 'STRONG BUY',
                 badgeClass: 'bg-green-500/20 text-green-400 border-green-500/40',
                 cardBorder: 'border-green-500 glow-green',
-                confide
+                confidence: '89%',
+   
