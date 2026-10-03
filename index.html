@@ -38,9 +38,12 @@
     <style>
         body { background-color: #0b0e14; color: #f3f4f6; }
         .glow-gold { box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); }
-        .glow-green { box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
-        .glow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
+        .glow-green { box-shadow: 0 0 15px rgba(34, 197, 94, 0.25); }
+        .glow-yellow { box-shadow: 0 0 15px rgba(234, 179, 8, 0.25); }
+        .glow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.25); }
         tv-mini-chart { width: 100%; height: 100%; }
+        .tf-card { transition: all 0.2s ease-in-out; }
+        .tf-card:hover { transform: translateY(-2px); }
     </style>
 </head>
 <body class="font-sans antialiased min-h-screen pb-10">
@@ -69,7 +72,6 @@
 
         <!-- Daily Performance Summary -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <!-- Daily Release Count -->
             <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex flex-col justify-between">
                 <span class="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">Isyarat Harian</span>
                 <div class="mt-2 flex items-baseline justify-between">
@@ -79,7 +81,6 @@
                 <p class="text-[10px] text-gray-500 mt-1">Isyarat Dikeluarkan Hari Ini</p>
             </div>
 
-            <!-- Total Daily Profit Pips -->
             <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex flex-col justify-between">
                 <span class="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">Total Profit (Pips)</span>
                 <div class="mt-2 flex items-baseline justify-between">
@@ -89,7 +90,6 @@
                 <p class="text-[10px] text-gray-500 mt-1">Untung Harian Kumulatif</p>
             </div>
 
-            <!-- Total Daily Loss Pips -->
             <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex flex-col justify-between">
                 <span class="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">Total Loss (Pips)</span>
                 <div class="mt-2 flex items-baseline justify-between">
@@ -99,7 +99,6 @@
                 <p class="text-[10px] text-gray-500 mt-1">Rugi Harian Kumulatif</p>
             </div>
 
-            <!-- Net Daily Pips -->
             <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex flex-col justify-between">
                 <span class="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">Bersih Harian</span>
                 <div class="mt-2 flex items-baseline justify-between">
@@ -110,12 +109,12 @@
             </div>
         </div>
 
-        <!-- NEW: MULTI-TIMEFRAME ANALYSIS DASHBOARD CARD -->
+        <!-- SELECTABLE MULTI-TIMEFRAME ANALYSIS DASHBOARD CARD -->
         <div class="bg-dark-card border border-dark-border rounded-2xl p-5">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
                 <div>
-                    <h2 class="text-sm font-semibold text-gray-200 uppercase tracking-wider">Analisis Trend Multi-Timeframe (MTF)</h2>
-                    <p class="text-xs text-gray-400">Pengesahan Selari Trend merentasi pelbagai jangka masa</p>
+                    <h2 class="text-sm font-semibold text-gray-200 uppercase tracking-wider">Pilih Timeframe Isyarat (MTF)</h2>
+                    <p class="text-xs text-gray-400">Tekan mana-mana timeframe di bawah untuk melihat butiran isyarat lengkap</p>
                 </div>
                 <div class="flex items-center space-x-2">
                     <span class="text-xs text-gray-400">MTF Confluence:</span>
@@ -125,78 +124,75 @@
                 </div>
             </div>
 
-            <!-- Timeframe Grid Blocks -->
+            <!-- Timeframe Interactive Selection Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 
-                <!-- M5 Signal -->
-                <div class="bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl text-center flex flex-col justify-between">
+                <!-- M5 Button -->
+                <button onclick="selectTimeframe('M5')" id="btn-tf-M5" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl cursor-pointer hover:border-yellow-500/50">
                     <div class="flex justify-between items-center text-[11px] text-gray-400 font-bold mb-1">
-                        <span>M5</span>
+                        <span id="label-M5">M5</span>
                         <span class="text-[9px] text-gray-500">Scalp</span>
                     </div>
-                    <div id="m5-signal" class="text-sm font-bold text-green-400 my-1">BUY</div>
-                    <div class="text-[10px] text-gray-400 border-t border-dark-border pt-1 mt-1">RSI 62 • Bullish</div>
-                </div>
+                    <div class="text-sm font-bold text-green-400 my-1">BUY</div>
+                    <div class="text-[10px] text-gray-400 border-t border-dark-border pt-1 mt-1">RSI 62 • Scalp Buy</div>
+                </button>
 
-                <!-- M15 Signal (Primary Focus) -->
-                <div class="bg-dark-bg/80 border border-green-500/50 p-3.5 rounded-xl text-center flex flex-col justify-between glow-green">
+                <!-- M15 Button (Default Active) -->
+                <button onclick="selectTimeframe('M15')" id="btn-tf-M15" class="tf-card text-left bg-dark-bg/80 border-2 border-green-500 p-3.5 rounded-xl cursor-pointer glow-green">
                     <div class="flex justify-between items-center text-[11px] text-gray-400 font-bold mb-1">
-                        <span class="text-green-400">M15 (Utama)</span>
+                        <span id="label-M15" class="text-green-400">M15 (Aktif)</span>
                         <span class="text-[9px] text-green-400/70">Intraday</span>
                     </div>
-                    <div id="m15-signal" class="text-sm font-bold text-green-400 my-1">STRONG BUY</div>
+                    <div class="text-sm font-bold text-green-400 my-1">STRONG BUY</div>
                     <div class="text-[10px] text-gray-400 border-t border-dark-border pt-1 mt-1">EMA Cross • FVG Sweep</div>
-                </div>
+                </button>
 
-                <!-- H1 Signal -->
-                <div class="bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl text-center flex flex-col justify-between">
+                <!-- H1 Button -->
+                <button onclick="selectTimeframe('H1')" id="btn-tf-H1" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl cursor-pointer hover:border-yellow-500/50">
                     <div class="flex justify-between items-center text-[11px] text-gray-400 font-bold mb-1">
-                        <span>H1</span>
+                        <span id="label-H1">H1</span>
                         <span class="text-[9px] text-gray-500">Day Trade</span>
                     </div>
-                    <div id="h1-signal" class="text-sm font-bold text-green-400 my-1">BUY</div>
+                    <div class="text-sm font-bold text-green-400 my-1">BUY</div>
                     <div class="text-[10px] text-gray-400 border-t border-dark-border pt-1 mt-1">Bullish Structure</div>
-                </div>
+                </button>
 
-                <!-- H4 Signal -->
-                <div class="bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl text-center flex flex-col justify-between">
+                <!-- H4 Button -->
+                <button onclick="selectTimeframe('H4')" id="btn-tf-H4" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl cursor-pointer hover:border-yellow-500/50">
                     <div class="flex justify-between items-center text-[11px] text-gray-400 font-bold mb-1">
-                        <span>H4</span>
+                        <span id="label-H4">H4</span>
                         <span class="text-[9px] text-gray-500">Swing Trend</span>
                     </div>
-                    <div id="h4-signal" class="text-sm font-bold text-yellow-400 my-1">NEUTRAL</div>
+                    <div class="text-sm font-bold text-yellow-400 my-1">NEUTRAL</div>
                     <div class="text-[10px] text-gray-400 border-t border-dark-border pt-1 mt-1">Konsolidasi Zone</div>
-                </div>
+                </button>
 
             </div>
         </div>
 
-        <!-- Top Grid: Live Price & Current Signal -->
+        <!-- Top Grid: Live Price & Current Selected Signal Details -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             <!-- Live Price Card -->
             <div class="bg-dark-card border border-dark-border rounded-2xl p-5 glow-gold">
                 <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Harga Semasa Pasaran (XAU/USD)</div>
                 <div class="flex items-baseline space-x-3">
-                    <div id="live-price" class="text-4xl font-extrabold font-mono text-white">$2,735.50</div>
-                    <div id="price-change" class="text-sm font-semibold text-green-400">+0.45%</div>
+                    <div id="live-price" class="text-3xl sm:text-4xl font-extrabold font-mono text-white">$4,140.50</div>
+                    <div id="price-change" class="text-sm font-semibold text-red-400">-0.88%</div>
                 </div>
                 <div class="mt-4 flex justify-between text-xs text-gray-400 border-t border-dark-border pt-3">
-                    <span>High: <strong id="high-price" class="text-gray-200">$2,745.20</strong></span>
-                    <span>Low: <strong id="low-price" class="text-gray-200">$2,720.10</strong></span>
+                    <span>High: <strong id="high-price" class="text-gray-200">$4,185.00</strong></span>
+                    <span>Low: <strong id="low-price" class="text-gray-200">$4,125.00</strong></span>
                     <span>Status: <strong class="text-green-400">Spot Market</strong></span>
                 </div>
             </div>
 
-            <!-- Signal Action Card -->
+            <!-- Dynamic Signal Action Card -->
             <div id="signal-card" class="bg-dark-card border border-green-500/30 rounded-2xl p-5 glow-green md:col-span-2 flex flex-col justify-between">
-                
-                <!-- Signal Header Status -->
                 <div class="flex justify-between items-start">
                     <div>
                         <div class="flex items-center space-x-2">
-                            <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Isyarat Utama (M15)</span>
-                            <!-- Status Valid / Invalid Badge -->
+                            <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Isyarat Terpilih: <strong id="selected-tf-display" class="text-yellow-400">M15 (Intraday)</strong></span>
                             <span id="signal-validity-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-green-500/20 text-green-400 border border-green-500/40 flex items-center space-x-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
                                 <span>VALID (Aktif)</span>
@@ -209,31 +205,30 @@
                         </div>
                     </div>
 
-                    <!-- Signal Time & Minit Keluar -->
                     <div class="text-right">
                         <span class="text-xs text-gray-400">Masa Isyarat Keluar:</span>
                         <div id="signal-time-clock" class="text-xs font-mono text-gray-200">10:15:00 AM</div>
-                        <div id="signal-elapsed-time" class="text-xs font-mono font-bold text-yellow-400 mt-1">Dikeluarkan 12 minit lalu</div>
+                        <div id="signal-elapsed-time" class="text-xs font-mono font-bold text-yellow-400 mt-1">Dikeluarkan 14 minit lalu</div>
                     </div>
                 </div>
 
-                <!-- Signal Levels (Entry, TP, SL) -->
+                <!-- Dynamic Signal Levels (Entry, TP1, TP2, SL) -->
                 <div class="grid grid-cols-4 gap-2 mt-4 pt-3 border-t border-dark-border text-center">
                     <div class="bg-dark-bg/60 p-2 rounded-xl border border-dark-border">
                         <div class="text-[10px] text-gray-400">ENTRY</div>
-                        <div id="entry-price" class="font-mono text-sm font-bold text-white">$2,732.00</div>
+                        <div id="entry-price" class="font-mono text-xs sm:text-sm font-bold text-white">$4,140.50</div>
                     </div>
                     <div class="bg-dark-bg/60 p-2 rounded-xl border border-dark-border">
                         <div class="text-[10px] text-gray-400">TARGET TP1</div>
-                        <div id="tp1-price" class="font-mono text-sm font-bold text-green-400">$2,740.00</div>
+                        <div id="tp1-price" class="font-mono text-xs sm:text-sm font-bold text-green-400">$4,150.50</div>
                     </div>
                     <div class="bg-dark-bg/60 p-2 rounded-xl border border-dark-border">
                         <div class="text-[10px] text-gray-400">TARGET TP2</div>
-                        <div id="tp2-price" class="font-mono text-sm font-bold text-green-400">$2,748.00</div>
+                        <div id="tp2-price" class="font-mono text-xs sm:text-sm font-bold text-green-400">$4,160.50</div>
                     </div>
                     <div class="bg-dark-bg/60 p-2 rounded-xl border border-dark-border">
                         <div class="text-[10px] text-gray-400">STOP LOSS</div>
-                        <div id="sl-price" class="font-mono text-sm font-bold text-red-400">$2,725.00</div>
+                        <div id="sl-price" class="font-mono text-xs sm:text-sm font-bold text-red-400">$4,130.50</div>
                     </div>
                 </div>
             </div>
@@ -243,70 +238,68 @@
         <!-- Middle Section: TradingView Chart & Technical Metrics -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- TradingView Chart Container (2 Cols) -->
+            <!-- Dynamic TradingView Chart Container -->
             <div class="lg:col-span-2 bg-dark-card border border-dark-border rounded-2xl p-5">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-sm font-semibold text-gray-200">Carta Pergerakan Harga Live XAU/USD</h2>
+                    <h2 class="text-sm font-semibold text-gray-200">Carta Pergerakan Harga Live (<span id="chart-tf-label" class="text-yellow-400">M15</span>)</h2>
                     <span class="text-xs text-yellow-400 bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/20">TradingView Live</span>
                 </div>
                 
-                <!-- TradingView Web Component Widget (XAUUSD) -->
-                <div class="h-72 sm:h-96 w-full rounded-xl overflow-hidden">
-                    <tv-mini-chart symbol="OANDA:XAUUSD" theme="dark" width="100%" height="100%"></tv-mini-chart>
+                <div id="tv-chart-wrapper" class="h-72 sm:h-96 w-full rounded-xl overflow-hidden">
+                    <tv-mini-chart symbol="OANDA:XAUUSD" interval="15" theme="dark" width="100%" height="100%"></tv-mini-chart>
                 </div>
             </div>
 
-            <!-- Technical Analysis Breakdown -->
+            <!-- Dynamic Technical Analysis Breakdown -->
             <div class="bg-dark-card border border-dark-border rounded-2xl p-5 space-y-4">
-                <h2 class="text-sm font-semibold text-gray-200 border-b border-dark-border pb-2">Penanda Teknikal (Indicators)</h2>
+                <div class="flex justify-between items-center border-b border-dark-border pb-2">
+                    <h2 class="text-sm font-semibold text-gray-200">Penanda Teknikal</h2>
+                    <span id="indicator-tf-badge" class="text-[10px] font-bold text-yellow-400 bg-yellow-500/10 px-2 py-0.5 rounded border border-yellow-500/20">M15 DATA</span>
+                </div>
                 
-                <!-- Indicator Item -->
                 <div class="flex justify-between items-center">
                     <div>
                         <div class="text-xs font-medium text-gray-300">RSI (14)</div>
                         <div class="text-[10px] text-gray-500">Relative Strength Index</div>
                     </div>
                     <div class="text-right">
-                        <div id="rsi-val" class="font-mono text-sm font-bold text-green-400">46.5 (Bullish)</div>
+                        <div id="rsi-val" class="font-mono text-sm font-bold text-green-400">56.5 (Bullish)</div>
                     </div>
                 </div>
 
-                <!-- Indicator Item -->
                 <div class="flex justify-between items-center">
                     <div>
-                        <div class="text-xs font-medium text-gray-300">EMA Trend (50/200)</div>
-                        <div class="text-[10px] text-gray-500">Exponential Moving Average</div>
+                        <div class="text-xs font-medium text-gray-300">EMA Trend</div>
+                        <div class="text-[10px] text-gray-500">Exponential Moving Avg</div>
                     </div>
                     <div class="text-right">
-                        <div class="font-mono text-sm font-bold text-green-400">Bullish Rebound</div>
+                        <div id="ema-val" class="font-mono text-sm font-bold text-green-400">EMA 50/200 Bullish</div>
                     </div>
                 </div>
 
-                <!-- Indicator Item -->
                 <div class="flex justify-between items-center">
                     <div>
                         <div class="text-xs font-medium text-gray-300">ATR Volatility (14)</div>
                         <div class="text-[10px] text-gray-500">Average True Range</div>
                     </div>
                     <div class="text-right">
-                        <div class="font-mono text-sm font-bold text-yellow-400">$7.80 (Normal)</div>
+                        <div id="atr-val" class="font-mono text-sm font-bold text-yellow-400">$12.50 (Normal)</div>
                     </div>
                 </div>
 
-                <!-- Indicator Item -->
                 <div class="flex justify-between items-center">
                     <div>
                         <div class="text-xs font-medium text-gray-300">Smart Money (SMC)</div>
                         <div class="text-[10px] text-gray-500">Fair Value Gap / OB</div>
                     </div>
                     <div class="text-right">
-                        <div class="font-mono text-sm font-bold text-blue-400">Bullish Orderblock</div>
+                        <div id="smc-val" class="font-mono text-sm font-bold text-blue-400">Bullish Orderblock</div>
                     </div>
                 </div>
 
                 <div class="bg-dark-bg p-3 rounded-xl border border-dark-border text-xs text-gray-400 mt-4">
-                    <p class="font-semibold text-gray-300 mb-1">Nota MTF Confirmation:</p>
-                    <p>Cari sekurang-kurangnya <strong class="text-green-400">3 daripada 4 timeframe</strong> yang selari (Contoh: M5, M15 & H1 BUY) sebelum melakukan entry.</p>
+                    <p class="font-semibold text-gray-300 mb-1">Status Timeframe Terpilih:</p>
+                    <p id="tf-description">Timeframe <strong class="text-green-400">M15</strong> sangat sesuai untuk zon entry Intraday bagi pergerakan pips sederhana.</p>
                 </div>
             </div>
 
@@ -314,31 +307,35 @@
 
     </main>
 
-    <!-- Script Analytics & Real-Time Gold Data -->
+    <!-- Script Analytics & Dynamic Timeframe Handler -->
     <script>
-        // Penetapan Masa Isyarat Keluar (Simulasi 14 minit yang lalu)
-        const signalReleaseTimestamp = new Date(Date.now() - (14 * 60 * 1000));
+        // Store Market Price Globally
+        let currentMarketPrice = 4140.50;
+        let selectedTimeframe = 'M15';
 
-        function updateSignalValidityAndTimer() {
-            const now = new Date();
-            const diffInMs = now - signalReleaseTimestamp;
-            const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-
-            // Papar masa jam keluar
-            document.getElementById('signal-time-clock').innerText = signalReleaseTimestamp.toLocaleTimeString();
-
-            // Papar berapa minit telah berlalu
-            if (diffInMinutes === 0) {
-                document.getElementById('signal-elapsed-time').innerText = "Baru sahaja keluar";
-            } else {
-                document.getElementById('signal-elapsed-time').innerText = `Dikeluarkan ${diffInMinutes} minit lalu`;
-            }
-
-            // Semak status VALID / EXPIRED (Valid dalam tempoh 45 minit)
-            const badgeEl = document.getElementById('signal-validity-badge');
-            if (diffInMinutes <= 45) {
-                badgeEl.className = "px-2 py-0.5 text-[10px] font-bold rounded-full bg-green-500/20 text-green-400 border border-green-500/40 flex items-center space-x-1";
-                badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span><span>VALID (Aktif)</span>`;
-            } else {
-                badgeEl.className = "px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-500/20 text-red-400 border border-red-500/40 flex items-center space-x-1";
-                badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-400"></span><spa
+        // Timeframe Preset Configurations
+        const tfData = {
+            'M5': {
+                label: 'M5 (Scalp)',
+                tvInterval: '5',
+                signal: 'BUY',
+                badgeClass: 'bg-green-500/20 text-green-400 border-green-500/40',
+                cardBorder: 'border-green-500 glow-green',
+                confidence: '78%',
+                elapsedMins: 4,
+                tp1Pips: 4.00,
+                tp2Pips: 8.00,
+                slPips: 4.00,
+                rsi: '62.4 (Bullish)',
+                ema: 'EMA 9/21 Cross Up',
+                atr: '$4.20 (Sederhana)',
+                smc: '5m FVG Rejection',
+                desc: 'Timeframe M5 sesuai untuk dagangan pantas (Scalping) dengan jarak TP/SL nipis.'
+            },
+            'M15': {
+                label: 'M15 (Intraday)',
+                tvInterval: '15',
+                signal: 'STRONG BUY',
+                badgeClass: 'bg-green-500/20 text-green-400 border-green-500/40',
+                cardBorder: 'border-green-500 glow-green',
+                confide
