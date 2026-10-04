@@ -56,9 +56,10 @@
                     <p class="text-xs text-gray-400">Multi-Timeframe Real-Time Analytics</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-2">
-                <span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
-                <span id="connection-status" class="text-xs font-mono text-green-400">GOLD SPOT LIVE</span>
+            <!-- Dynamic Market Status Badge Header -->
+            <div class="flex items-center space-x-2 bg-dark-bg/80 px-3 py-1.5 rounded-lg border border-dark-border">
+                <span id="connection-dot" class="inline-block w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+                <span id="connection-status" class="text-xs font-mono font-bold text-green-400">PASARAN DIBUKA (LIVE)</span>
             </div>
         </div>
     </header>
@@ -105,7 +106,7 @@
             </div>
         </div>
 
-        <!-- TIMEFRAME SELECTION BUTTONS (BULATAN ATAS) -->
+        <!-- TIMEFRAME SELECTION BUTTONS -->
         <div class="bg-dark-card border border-dark-border rounded-2xl p-5">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
                 <div>
@@ -170,17 +171,17 @@
             <div class="bg-dark-card border border-dark-border rounded-2xl p-5 glow-gold">
                 <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Harga Semasa Pasaran (XAU/USD)</div>
                 <div class="flex items-baseline space-x-3">
-                    <div id="live-price" class="text-3xl sm:text-4xl font-extrabold font-mono text-white">$4,140.50</div>
+                    <div id="live-price" class="text-3xl sm:text-4xl font-extrabold font-mono text-white">$4,135.50</div>
                     <div id="price-change" class="text-sm font-semibold text-red-400">-0.88%</div>
                 </div>
                 <div class="mt-4 flex justify-between text-xs text-gray-400 border-t border-dark-border pt-3">
                     <span>High: <strong id="high-price" class="text-gray-200">$4,185.00</strong></span>
                     <span>Low: <strong id="low-price" class="text-gray-200">$4,125.00</strong></span>
-                    <span>Status: <strong class="text-green-400">Spot Market</strong></span>
+                    <span>Status: <strong id="market-status-text" class="text-green-400 font-bold">DIBUKA (LIVE)</strong></span>
                 </div>
             </div>
 
-            <!-- DYNAMIC SIGNAL DETAILS CARD (BULATAN BAWAH) -->
+            <!-- DYNAMIC SIGNAL DETAILS CARD -->
             <div id="signal-card" class="bg-dark-card border border-green-500/30 rounded-2xl p-5 glow-green md:col-span-2 flex flex-col justify-between">
                 <div class="flex justify-between items-start">
                     <div>
@@ -201,7 +202,7 @@
                     <div class="text-right">
                         <span class="text-xs text-gray-400">Masa Isyarat Keluar:</span>
                         <div id="display-time-clock" class="text-xs font-mono text-gray-200 font-bold">10:15:00 AM</div>
-                        <div id="display-elapsed-time" class="text-xs font-mono font-bold text-yellow-400 mt-1">Dikeluarkan 14 minit lalu</div>
+                        <div id="display-elapsed-time" class="text-xs font-mono font-bold text-yellow-400 mt-1">Dikeluarkan 2 minit lalu</div>
                     </div>
                 </div>
 
@@ -209,19 +210,19 @@
                 <div class="grid grid-cols-4 gap-2 mt-4 pt-3 border-t border-dark-border text-center">
                     <div class="bg-dark-bg/60 p-2 rounded-xl border border-dark-border">
                         <div class="text-[10px] text-gray-400 font-semibold">ENTRY</div>
-                        <div id="display-entry-price" class="font-mono text-xs sm:text-sm font-bold text-white">$4,140.50</div>
+                        <div id="display-entry-price" class="font-mono text-xs sm:text-sm font-bold text-white">$4,135.50</div>
                     </div>
                     <div class="bg-dark-bg/60 p-2 rounded-xl border border-dark-border">
                         <div class="text-[10px] text-gray-400 font-semibold">TARGET TP1</div>
-                        <div id="display-tp1-price" class="font-mono text-xs sm:text-sm font-bold text-green-400">$4,150.50</div>
+                        <div id="display-tp1-price" class="font-mono text-xs sm:text-sm font-bold text-green-400">$4,145.50</div>
                     </div>
                     <div class="bg-dark-bg/60 p-2 rounded-xl border border-dark-border">
                         <div class="text-[10px] text-gray-400 font-semibold">TARGET TP2</div>
-                        <div id="display-tp2-price" class="font-mono text-xs sm:text-sm font-bold text-green-400">$4,160.50</div>
+                        <div id="display-tp2-price" class="font-mono text-xs sm:text-sm font-bold text-green-400">$4,155.50</div>
                     </div>
                     <div class="bg-dark-bg/60 p-2 rounded-xl border border-dark-border">
                         <div class="text-[10px] text-gray-400 font-semibold">STOP LOSS</div>
-                        <div id="display-sl-price" class="font-mono text-xs sm:text-sm font-bold text-red-400">$4,130.50</div>
+                        <div id="display-sl-price" class="font-mono text-xs sm:text-sm font-bold text-red-400">$4,125.50</div>
                     </div>
                 </div>
             </div>
@@ -301,7 +302,7 @@
 
     <!-- Global Dynamic Script -->
     <script>
-        var currentMarketPrice = 4140.50;
+        var currentMarketPrice = 4135.50;
         var selectedTimeframe = 'M15';
 
         var tfDatabase = {
@@ -313,13 +314,13 @@
                 cardGlowClass: 'border-green-500 glow-green',
                 confidence: '78%',
                 timeClock: '10:25:00 AM',
-                elapsedText: 'Dikeluarkan 4 minit lalu',
+                elapsedText: 'Dikeluarkan 1 minit lalu',
                 validityText: 'VALID (Aktif)',
                 validityBadgeClass: 'bg-green-500/20 text-green-400 border-green-500/40',
-                entryPrice: 4140.50,
-                tp1Price: 4144.50,
-                tp2Price: 4148.50,
-                slPrice: 4136.50,
+                entryPrice: 4135.50,
+                tp1Price: 4139.50,
+                tp2Price: 4143.50,
+                slPrice: 4131.50,
                 rsi: '62.4 (Bullish)',
                 ema: 'EMA 9/21 Cross Up',
                 atr: '$4.20 (Sederhana)',
@@ -330,8 +331,4 @@
                 title: 'M15 (INTRADAY)',
                 tvInterval: '15',
                 signal: 'STRONG BUY',
-                signalBadgeClass: 'bg-green-500/20 text-green-400 border-green-500/40',
-                cardGlowClass: 'border-green-500 glow-green',
-                confidence: '89%',
-                timeClock: '10:15:00 AM',
-                
+                signalBadgeClass: 'bg-green-500/20 text-green-400 b                
