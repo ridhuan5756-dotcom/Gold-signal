@@ -53,28 +53,21 @@
                 <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">
                     Harga Semasa Pasaran (OANDA:XAUUSD)
                 </div>
-                <div class="tradingview-widget-container w-full my-auto">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
-                    {
-                        "symbol": "OANDA:XAUUSD",
-                        "width": "100%",
-                        "colorTheme": "dark",
-                        "isTransparent": true,
-                        "locale": "en"
-                    }
-                    </script>
+                <div class="w-full h-[100px] overflow-hidden rounded-xl">
+                    <iframe src="https://s.tradingview.com/embed-widget/single-quote/?locale=en&symbol=OANDA%3AXAUUSD&colorTheme=dark&isTransparent=true" style="width: 100%; height: 100%; border: none;"></iframe>
                 </div>
                 <div class="text-[10px] text-gray-500 text-right mt-1">Direct Feed: TradingView Real-Time Engine</div>
             </div>
 
-            <!-- TRADINGVIEW TECHNICAL ANALYSIS GAUGE -->
+            <!-- TRADINGVIEW TECHNICAL ANALYSIS GAUGE (STABLE IFRAME) -->
             <div class="lg:col-span-8 bg-dark-card border border-dark-border rounded-2xl p-4 flex flex-col justify-between">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Analisis Teknikal Real-Time (26 Indicators)</span>
                     <span id="tv-gauge-tf-badge" class="text-[10px] bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded font-mono font-bold">TIMEFRAME: M15</span>
                 </div>
-                <div class="w-full h-[210px] rounded-xl overflow-hidden" id="tv_technical_gauge_container"></div>
+                <div class="w-full h-[220px] rounded-xl overflow-hidden" id="tv_gauge_box">
+                    <iframe id="iframe-gauge" src="https://s.tradingview.com/embed-widget/technical-analysis/?locale=en&symbol=OANDA%3AXAUUSD&colorTheme=dark&isTransparent=true&interval=15m&width=100%25&height=100%25" style="width: 100%; height: 100%; border: none;"></iframe>
+                </div>
             </div>
 
         </div>
@@ -168,7 +161,7 @@
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: FULL TRADINGVIEW LIVE INTERACTIVE CHART (8 COLS) -->
+            <!-- RIGHT COLUMN: TRADINGVIEW LIVE CHART (STABLE IFRAME) -->
             <div class="lg:col-span-8">
                 <div class="bg-dark-card border border-dark-border rounded-2xl p-3 h-[500px] lg:h-[620px] flex flex-col">
                     <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2 px-1 flex justify-between items-center">
@@ -176,7 +169,9 @@
                         <span class="text-[10px] text-green-400">● Live Feed Active</span>
                     </div>
                     
-                    <div class="w-full h-full rounded-xl overflow-hidden border border-dark-border" id="tv_chart_container"></div>
+                    <div class="w-full h-full rounded-xl overflow-hidden border border-dark-border">
+                        <iframe id="iframe-chart" src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=OANDA%3AXAUUSD&interval=15&hidesidetoolbar=0&symboledit=0&saveimage=1&toolbarbg=131722&bordercolor=2a2e39&theme=dark&style=1&timezone=Asia%2FKuala_Lumpur" style="width: 100%; height: 100%; border: none;"></iframe>
+                    </div>
                 </div>
             </div>
 
@@ -251,18 +246,15 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                
-                <!-- CARD A: TRADING STRATEGY -->
                 <div class="bg-dark-bg p-4 rounded-xl border border-dark-border space-y-2">
                     <div class="flex items-center gap-2 text-yellow-400 font-bold border-b border-dark-border/60 pb-1.5">
                         <span>🎯 Cadangan Strategi Entry</span>
                     </div>
                     <p id="plan-strategy-desc" class="text-gray-300 leading-relaxed">
-                        Tunggu harga membuat retest di zon Orderblock M15 atau Support S1. Pastikan ada rejection candlestick (Pinbar / Engulfing) sebelum menekan sebarang order.
+                        Tunggu harga membuat retest di zon Orderblock M15 atau Support S1. Pastikan ada rejection candlestick sebelum menekan sebarang order.
                     </p>
                 </div>
 
-                <!-- CARD B: RISK MANAGEMENT -->
                 <div class="bg-dark-bg p-4 rounded-xl border border-dark-border space-y-2">
                     <div class="flex items-center gap-2 text-green-400 font-bold border-b border-dark-border/60 pb-1.5">
                         <span>🛡️ Pengurusan Risiko (Money Management)</span>
@@ -275,7 +267,6 @@
                     </ul>
                 </div>
 
-                <!-- CARD C: DISCIPLINE & SESSION ADVICE -->
                 <div class="bg-dark-bg p-4 rounded-xl border border-dark-border space-y-2">
                     <div class="flex items-center gap-2 text-blue-400 font-bold border-b border-dark-border/60 pb-1.5">
                         <span>⏰ Panduan Sesi & Disiplin Pasaran</span>
@@ -284,42 +275,28 @@
                         Sesuai didagangkan sepanjang Sesi London & New York. Waktu ideal entry adalah jam 3:30 PM - 6:00 PM & 8:30 PM - 11:00 PM.
                     </p>
                 </div>
-
             </div>
         </div>
 
     </div>
 
-    <!-- TRADINGVIEW ADVANCED CHART SCRIPT -->
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <script type="text/javascript">
-        var tvWidget = null;
+    <!-- DYNAMIC SIGNAL & TIMEFRAME SWITCHER -->
+    <script>
+        var currentLivePrice = 4136.80; 
+        var selectedTimeframe = 'M15';
+        var priceInterval = null;
 
-        function loadTradingViewChart(interval) {
-            document.getElementById('tv_chart_container').innerHTML = '';
-            tvWidget = new TradingView.widget({
-                "autosize": true,
-                "symbol": "OANDA:XAUUSD",
-                "interval": interval,
-                "timezone": "Asia/Kuala_Lumpur",
-                "theme": "dark",
-                "style": "1",
-                "locale": "en",
-                "toolbar_bg": "#131722",
-                "enable_publishing": false,
-                "hide_side_toolbar": false,
-                "allow_symbol_change": false,
-                "container_id": "tv_chart_container"
-            });
-        }
-
-        function loadTradingViewGauge(intervalStr) {
-            var container = document.getElementById('tv_technical_gauge_container');
-            if(!container) return;
-            container.innerHTML = '';
-
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
-            script.async = true;
-            script.inne
+        var tfDatabase = {
+            'M5': {
+                title: 'M5 (SCALP)',
+                tvInterval: '5',
+                tvGaugeInterval: '5m',
+                cardGlowClass: 'border-green-500 glow-green',
+                tp1Offset: 4.00, tp2Offset: 8.00, slOffset: 4.00,
+                rsi: 'Bullish Scalp', ema: 'EMA 9/21 Cross Up', atr: '$4.20 (Sederhana)', smc: '5m FVG Rejection',
+                desc: 'Timeframe M5 sesuai untuk dagangan pantas (Scalping) dengan sasaran TP/SL nipis.',
+                signalBadge: 'SIGNAL: SCALP BUY (FAST ENTRY)',
+                signalBadgeClass: 'bg-green-500/20 text-green-400 border-green-500/30',
+                oscStatus: 'Bullish Momentum', rsiDetail: '64.2 (Strong Momentum)', stochDetail: '75.0 (Approaching OB)', macdDetail: 'Bullish Histogram', cciDetail: '+120.5 (High Speed)',
+                maStatus: 'Bullish Crossover', emaFast: 'EMA 9 > EMA 21 (Up)', ema50: 'Price Above EMA 50', ema200: 'Price Above EMA 200', maBias: 'Short-term Bullish',
+                r2Offset: 10.00, r1Offset:
