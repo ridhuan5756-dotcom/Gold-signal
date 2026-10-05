@@ -24,6 +24,7 @@
     <style>
         .glow-gold { box-shadow: 0 0 15px rgba(240, 185, 11, 0.15); }
         .glow-green { box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
+        .glow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
         .glow-yellow { box-shadow: 0 0 15px rgba(234, 179, 8, 0.2); }
     </style>
 </head>
@@ -48,7 +49,7 @@
         <!-- TOP BAR: TRADINGVIEW LIVE TICKER & ACCURATE TECHNICAL ANALYSIS GAUGE -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
             
-            <!-- TRADINGVIEW SINGLE QUOTE WIDGET (Harga Live) -->
+            <!-- TRADINGVIEW SINGLE QUOTE WIDGET -->
             <div class="lg:col-span-4 bg-dark-card border border-dark-border rounded-2xl p-4 glow-gold flex flex-col justify-between">
                 <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">
                     Harga Semasa Pasaran (OANDA:XAUUSD)
@@ -68,15 +69,13 @@
                 <div class="text-[10px] text-gray-500 text-right mt-1">Direct Feed: TradingView Real-Time Engine</div>
             </div>
 
-            <!-- TRADINGVIEW TECHNICAL ANALYSIS GAUGE (Accuracy Engine) -->
+            <!-- TRADINGVIEW TECHNICAL ANALYSIS GAUGE -->
             <div class="lg:col-span-8 bg-dark-card border border-dark-border rounded-2xl p-4 flex flex-col justify-between">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Analisis Teknikal Real-Time (26 Indicators)</span>
                     <span id="tv-gauge-tf-badge" class="text-[10px] bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded font-mono font-bold">TIMEFRAME: M15</span>
                 </div>
-                <div class="w-full h-[210px] rounded-xl overflow-hidden" id="tv_technical_gauge_container">
-                    <!-- Dynamic Technical Analysis Gauge Inserted Here -->
-                </div>
+                <div class="w-full h-[210px] rounded-xl overflow-hidden" id="tv_technical_gauge_container"></div>
             </div>
 
         </div>
@@ -101,10 +100,10 @@
             </button>
         </div>
 
-        <!-- MAIN CONTENT GRID: SIGNAL DETAILS & LIVE CHART -->
+        <!-- MAIN CONTENT GRID: PARAS DAGANGAN & CARTA -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- LEFT COLUMN: ENTRY, TP, SL & ANALISIS (4 COLS) -->
+            <!-- LEFT COLUMN: PARAS DAGANGAN & STRUCTURE SUMMARY (4 COLS) -->
             <div class="lg:col-span-4 space-y-4">
                 
                 <!-- KAD PARAS HARGA DAGANGAN -->
@@ -115,7 +114,7 @@
 
                     <!-- ENTRY -->
                     <div class="flex justify-between items-center bg-dark-bg p-2.5 rounded-xl border border-dark-border">
-                        <span class="text-xs text-gray-400 font-medium">Zon Entry (Belian)</span>
+                        <span class="text-xs text-gray-400 font-medium">Zon Entry (Cadangan)</span>
                         <span id="display-entry-price" class="font-mono font-bold text-blue-400 text-sm">Loading...</span>
                     </div>
 
@@ -184,6 +183,112 @@
 
         </div>
 
+        <!-- NEW SECTION 1: DETAILED TECHNICAL ANALYSIS BREAKDOWN -->
+        <div class="bg-dark-card border border-dark-border rounded-2xl p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-dark-border pb-3 gap-2">
+                <div>
+                    <h2 class="text-base font-bold text-yellow-400 uppercase tracking-wide flex items-center gap-2">
+                        📊 DETAILED TECHNICAL ANALYSIS BREAKDOWN
+                    </h2>
+                    <p class="text-xs text-gray-400">Perincian indikator teknikal & paras sokongan/rintangan mengikut timeframe aktif</p>
+                </div>
+                <div id="tech-signal-badge" class="px-3 py-1 rounded-xl text-xs font-bold font-mono bg-green-500/20 text-green-400 border border-green-500/30">
+                    SIGNAL: BUY / BULLISH CONFIRMED
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <!-- BOX 1: OSCILLATORS -->
+                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border space-y-2.5">
+                    <div class="font-bold text-gray-300 border-b border-dark-border/60 pb-1.5 flex justify-between">
+                        <span>1. Oscillators Analysis</span>
+                        <span id="tech-osc-status" class="text-green-400 font-semibold">Bullish</span>
+                    </div>
+                    <div class="space-y-1.5 text-gray-400">
+                        <div class="flex justify-between"><span>RSI (14):</span> <span id="tech-rsi-detail" class="font-mono text-gray-200">58.4 (Bullish Zone)</span></div>
+                        <div class="flex justify-between"><span>Stochastic (14,3,3):</span> <span id="tech-stoch-detail" class="font-mono text-gray-200">62.1 (Moving Up)</span></div>
+                        <div class="flex justify-between"><span>MACD Line:</span> <span id="tech-macd-detail" class="font-mono text-green-400">Above Signal Line</span></div>
+                        <div class="flex justify-between"><span>CCI (20):</span> <span id="tech-cci-detail" class="font-mono text-gray-200">+104 (Buyer Momentum)</span></div>
+                    </div>
+                </div>
+
+                <!-- BOX 2: MOVING AVERAGES -->
+                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border space-y-2.5">
+                    <div class="font-bold text-gray-300 border-b border-dark-border/60 pb-1.5 flex justify-between">
+                        <span>2. Moving Averages Trend</span>
+                        <span id="tech-ma-status" class="text-green-400 font-semibold">Strong Buy</span>
+                    </div>
+                    <div class="space-y-1.5 text-gray-400">
+                        <div class="flex justify-between"><span>EMA 9 / EMA 21:</span> <span id="tech-ema-fast" class="font-mono text-green-400">Golden Cross</span></div>
+                        <div class="flex justify-between"><span>EMA 50 (Short Trend):</span> <span id="tech-ema50" class="font-mono text-gray-200">Price Above EMA</span></div>
+                        <div class="flex justify-between"><span>EMA 200 (Long Trend):</span> <span id="tech-ema200" class="font-mono text-gray-200">Price Above EMA</span></div>
+                        <div class="flex justify-between"><span>Overall MA Bias:</span> <span id="tech-ma-bias" class="font-mono text-green-400">Uptrend Alignment</span></div>
+                    </div>
+                </div>
+
+                <!-- BOX 3: KEY SUPPORT & RESISTANCE -->
+                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border space-y-2.5">
+                    <div class="font-bold text-gray-300 border-b border-dark-border/60 pb-1.5 flex justify-between">
+                        <span>3. Key Support & Resistance</span>
+                        <span class="text-yellow-400 font-semibold">Pivot Levels</span>
+                    </div>
+                    <div class="space-y-1.5 text-gray-400">
+                        <div class="flex justify-between"><span>Rintangan 2 (R2):</span> <span id="tech-r2" class="font-mono text-red-400">$4,165.00</span></div>
+                        <div class="flex justify-between"><span>Rintangan 1 (R1):</span> <span id="tech-r1" class="font-mono text-red-400">$4,152.00</span></div>
+                        <div class="flex justify-between"><span>Sokongan 1 (S1):</span> <span id="tech-s1" class="font-mono text-green-400">$4,130.00</span></div>
+                        <div class="flex justify-between"><span>Sokongan 2 (S2):</span> <span id="tech-s2" class="font-mono text-green-400">$4,118.00</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW SECTION 2: SUGGESTED ADVICE & MARKET PLANNING -->
+        <div class="bg-dark-card border border-dark-border rounded-2xl p-5 space-y-4">
+            <div class="border-b border-dark-border pb-3">
+                <h2 class="text-base font-bold text-yellow-400 uppercase tracking-wide flex items-center gap-2">
+                    💡 SUGGESTED ADVICE & MARKET PLANNING STRATEGY
+                </h2>
+                <p class="text-xs text-gray-400">Pelan tindakan dagangan & pengurusan risiko automatik mengikut timeframe pilihan</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                
+                <!-- CARD A: TRADING STRATEGY -->
+                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border space-y-2">
+                    <div class="flex items-center gap-2 text-yellow-400 font-bold border-b border-dark-border/60 pb-1.5">
+                        <span>🎯 Cadangan Strategi Entry</span>
+                    </div>
+                    <p id="plan-strategy-desc" class="text-gray-300 leading-relaxed">
+                        Tunggu harga melakukan retest di zon Sokongan S1 atau Fair Value Gap (FVG) sebelum menekan belian (BUY). Elakkan mengejar harga semasa candlestick sedang pacak tinggi.
+                    </p>
+                </div>
+
+                <!-- CARD B: RISK MANAGEMENT -->
+                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border space-y-2">
+                    <div class="flex items-center gap-2 text-green-400 font-bold border-b border-dark-border/60 pb-1.5">
+                        <span>🛡️ Pengurusan Risiko (Money Management)</span>
+                    </div>
+                    <ul class="text-gray-300 space-y-1 list-disc list-inside">
+                        <li><strong>Risiko Akaun:</strong> <span id="plan-risk-pct">Maksimum 1.5% - 2% per trade</span></li>
+                        <li><strong>Nisbah RR:</strong> <span id="plan-rr-ratio">1 : 1.5 (Minimum)</span></li>
+                        <li><strong>Cadangan Lot:</strong> <span id="plan-lot-advice">0.01 lot per $500 capital</span></li>
+                        <li><strong>Kawalan SL:</strong> Sentiasa pasang Stop Loss fizikal di sistem.</li>
+                    </ul>
+                </div>
+
+                <!-- CARD C: DISCIPLINE & SESSION ADVICE -->
+                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border space-y-2">
+                    <div class="flex items-center gap-2 text-blue-400 font-bold border-b border-dark-border/60 pb-1.5">
+                        <span>⏰ Panduan Sesi & Disiplin Pasaran</span>
+                    </div>
+                    <p id="plan-session-desc" class="text-gray-300 leading-relaxed">
+                        Waktu paling ideal untuk timeframe ini adalah sewaktu <strong>Sesi London (3:00 PM+)</strong> & <strong>Sesi New York (8:00 PM+)</strong>. Berhati-hati semasa pelepasan berita High Impact (NFP / CPI).
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
     <!-- TRADINGVIEW ADVANCED CHART SCRIPT -->
@@ -215,193 +320,4 @@
             container.innerHTML = '';
 
             var script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
-            script.async = true;
-            script.innerHTML = JSON.stringify({
-                "interval": intervalStr,
-                "width": "100%",
-                "isTransparent": true,
-                "height": "100%",
-                "symbol": "OANDA:XAUUSD",
-                "showIntervalTabs": false,
-                "displayMode": "single",
-                "locale": "en",
-                "colorTheme": "dark"
-            });
-            container.appendChild(script);
-        }
-
-        // Default Load M15
-        loadTradingViewChart('15');
-        loadTradingViewGauge('15m');
-    </script>
-
-    <!-- DYNAMIC SIGNAL & STABILITY ENGINE -->
-    <script>
-        var currentLivePrice = 4141.50; 
-        var selectedTimeframe = 'M15';
-        var priceInterval = null;
-
-        var tfDatabase = {
-            'M5': {
-                title: 'M5 (SCALP)',
-                tvInterval: '5',
-                tvGaugeInterval: '5m',
-                cardGlowClass: 'border-green-500 glow-green',
-                tp1Offset: 4.00,
-                tp2Offset: 8.00,
-                slOffset: 4.00,
-                rsi: 'Bullish Scalp',
-                ema: 'EMA 9/21 Cross Up',
-                atr: '$4.20 (Sederhana)',
-                smc: '5m FVG Rejection',
-                desc: 'Timeframe M5 sesuai untuk dagangan pantas (Scalping) dengan sasaran TP/SL nipis.'
-            },
-            'M15': {
-                title: 'M15 (INTRADAY)',
-                tvInterval: '15',
-                tvGaugeInterval: '15m',
-                cardGlowClass: 'border-green-500 glow-green',
-                tp1Offset: 10.00,
-                tp2Offset: 20.00,
-                slOffset: 10.00,
-                rsi: 'Bullish Intraday',
-                ema: 'EMA 50/200 Up',
-                atr: '$12.50 (Normal)',
-                smc: 'Bullish Orderblock',
-                desc: 'Timeframe M15 adalah rujukan utama zon entry Intraday dengan nisbah ketepatan tinggi.'
-            },
-            'H1': {
-                title: 'H1 (DAY TRADE)',
-                tvInterval: '60',
-                tvGaugeInterval: '1h',
-                cardGlowClass: 'border-green-500 glow-green',
-                tp1Offset: 15.00,
-                tp2Offset: 30.00,
-                slOffset: 15.00,
-                rsi: 'Strong Trend Bias',
-                ema: 'Above EMA 200',
-                atr: '$22.00 (Tinggi)',
-                smc: 'H1 Liquidity Sweep',
-                desc: 'Timeframe H1 menentukan struktur trend harian yang kukuh bagi mengelakkan false breakout.'
-            },
-            'H4': {
-                title: 'H4 (SWING TREND)',
-                tvInterval: '240',
-                tvGaugeInterval: '4h',
-                cardGlowClass: 'border-yellow-500 glow-yellow',
-                tp1Offset: 30.00,
-                tp2Offset: 60.00,
-                slOffset: 25.00,
-                rsi: 'Consolidation Bias',
-                ema: 'EMA 50 Test',
-                atr: '$38.50 (Tinggi)',
-                smc: 'Sideways Range',
-                desc: 'Timeframe H4 sedang berada dalam zon konsolidasi (Sideways), disyorkan tunggu breakout.'
-            }
-        };
-
-        function updateSignalsDynamically(price) {
-            if (!price || price < 1000) return;
-            currentLivePrice = price;
-            refreshUI(selectedTimeframe);
-        }
-
-        function refreshUI(tfKey) {
-            var data = tfDatabase[tfKey];
-            if (!data) return;
-
-            var fmt = function(num) { 
-                return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); 
-            };
-
-            document.getElementById('display-tf-title').innerText = data.title;
-
-            // Kira TP/SL secara automatik dari harga semasa
-            var entry = currentLivePrice;
-            var tp1 = currentLivePrice + data.tp1Offset;
-            var tp2 = currentLivePrice + data.tp2Offset;
-            var sl = currentLivePrice - data.slOffset;
-
-            document.getElementById('display-entry-price').innerText = fmt(entry);
-            document.getElementById('display-tp1-price').innerText = fmt(tp1);
-            document.getElementById('display-tp2-price').innerText = fmt(tp2);
-            document.getElementById('display-sl-price').innerText = fmt(sl);
-
-            document.getElementById('indicator-tf-badge').innerText = tfKey + ' DATA';
-            document.getElementById('tv-gauge-tf-badge').innerText = 'TIMEFRAME: ' + tfKey;
-            document.getElementById('rsi-val').innerText = data.rsi;
-            document.getElementById('ema-val').innerText = data.ema;
-            document.getElementById('atr-val').innerText = data.atr;
-            document.getElementById('smc-val').innerText = data.smc;
-            document.getElementById('tf-description').innerText = data.desc;
-        }
-
-        window.selectTimeframe = function(tfKey) {
-            selectedTimeframe = tfKey;
-            var data = tfDatabase[tfKey];
-
-            var tfs = ['M5', 'M15', 'H1', 'H4'];
-            for (var i = 0; i < tfs.length; i++) {
-                var k = tfs[i];
-                var btn = document.getElementById('btn-tf-' + k);
-                var label = document.getElementById('label-tf-' + k);
-
-                if (k === tfKey) {
-                    if (btn) btn.className = 'tf-card text-left bg-dark-bg/80 border-2 p-3.5 rounded-xl cursor-pointer ' + data.cardGlowClass;
-                    if (label) {
-                        label.className = 'text-green-400 font-bold text-sm';
-                        label.innerText = k + ' (Aktif)';
-                    }
-                } else {
-                    if (btn) btn.className = 'tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl cursor-pointer hover:border-yellow-500/50';
-                    if (label) {
-                        label.className = 'text-gray-400 font-bold text-sm';
-                        label.innerText = k;
-                    }
-                }
-            }
-
-            refreshUI(tfKey);
-
-            if (typeof loadTradingViewChart === 'function') {
-                loadTradingViewChart(data.tvInterval);
-                loadTradingViewGauge(data.tvGaugeInterval);
-            }
-        };
-
-        // MULTI-SOURCE FALLBACK FETCH ENGINE (Kestabilan Maksimum)
-        async function fetchPriceForSignals() {
-            try {
-                // Source 1: Coinbase Spot API
-                const res1 = await fetch('https://api.coinbase.com/v2/prices/PAXG-USD/spot');
-                const data1 = await res1.json();
-                if (data1 && data1.data && data1.data.amount) {
-                    updateSignalsDynamically(parseFloat(data1.data.amount));
-                    return;
-                }
-            } catch (err1) {
-                try {
-                    // Source 2: CoinCap API Fallback
-                    const res2 = await fetch('https://api.coincap.io/v2/assets/pax-gold');
-                    const data2 = await res2.json();
-                    if (data2 && data2.data && data2.data.priceUsd) {
-                        updateSignalsDynamically(parseFloat(data2.data.priceUsd));
-                        return;
-                    }
-                } catch (err2) {
-                    // Micro-tick Fallback
-                    var randomTick = (Math.random() - 0.5) * 0.15;
-                    updateSignalsDynamically(currentLivePrice + randomTick);
-                }
-            }
-        }
-
-        function checkMarketStatus() {
-            var now = new Date();
-            var day = now.getUTCDay();
-            var hour = now.getUTCHours();
-            var isOpen = true;
-
-  
+            script.typ
