@@ -76,7 +76,7 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
       <div class="row"><input id="bp" type="number" step="0.01" inputmode="decimal" placeholder="Harga broker sekarang"><button id="sync" class="btn">Sync</button></div>
       <div class="row" style="margin-top:8px"><span class="lbl">Offset ($)</span><input id="off" type="number" step="0.01" inputmode="decimal" style="width:110px"></div>
     </div>
-    <p class="lbl" style="text-align:center;text-transform:none;letter-spacing:0">Bukan nasihat kewangan. Data dari Yahoo Finance (XAUUSD). 1 pip = $0.10.</p>
+    <p class="lbl" style="text-align:center;text-transform:none;letter-spacing:0">Bukan nasihat kewangan. Data dari Coinbase (PAXG) & Gold-API. 1 pip = $0.10.</p>
   </div>
 
   <div id="tab-cht" class="tab">
@@ -99,14 +99,14 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
 (function () {
   const MIN = 5, REV = -3, RSI_HI = 68, RSI_LO = 32, CH = 1.5, PIP = 0.1;
   
-  // Menggunakan format Yahoo Finance
+  // Menggunakan Coinbase granularity (saat) dan TV interval
   const TFS = {
-    M1:{yf:'1m',tv:'1',ms:6e4}, 
-    M5:{yf:'5m',tv:'5',ms:3e5}, 
-    M15:{yf:'15m',tv:'15',ms:9e5},
-    M30:{yf:'30m',tv:'30',ms:18e5}, 
-    H1:{yf:'60m',tv:'60',ms:36e5}, 
-    H4:{yf:'1h',tv:'240',ms:144e5} // YF guna 1h, kita label H4
+    M1:{cb:60, tv:'1', ms:6e4}, 
+    M5:{cb:300, tv:'5', ms:3e5}, 
+    M15:{cb:900, tv:'15', ms:9e5},
+    M30:{cb:1800, tv:'30', ms:18e5}, 
+    H1:{cb:3600, tv:'60', ms:36e5}, 
+    H4:{cb:21600, tv:'240', ms:144e5}
   };
   const HTF = {M1:'M15', M5:'H1', M15:'H1', M30:'H4', H1:'H4', H4:null};
   
@@ -126,61 +126,38 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
   const hhmm = t => new Date(t).toLocaleTimeString('en-GB');
   const pip = (s, p) => Math.round((p - s.entry) * s.dir / PIP);
 
-  /* ---------- DATA FETCHING (YAHOO FINANCE + PROXY FALLBACK) ---------- */
-  async function safeFetch(url) {
-    try {
-        const r = await fetch(url);
-        if (r.ok) return await r.json();
-    } catch(e) { console.log("Direct fetch failed, trying proxy..."); }
-    
-    const proxies = [
-        'https://api.allorigins.win/raw?url=',
-        'https://corsproxy.io/?url=',
-        'https://api.codetabs.com/v1/proxy?quest='
-    ];
-    for (let p of proxies) {
-        try {
-            const proxyUrl = p + encodeURIComponent(url);
-            const r = await fetch(proxyUrl);
-            if (r.ok) return await r.json();
-        } catch(e) { console.log("Proxy failed:", p); }
-    }
-    throw new Error('All data sources failed');
+  /* ---------- DATA FETCHING (COINBASE + GOLD-API) ---------- */
+  async function fetchJSON(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP error');
+    return await r.json();
   }
 
   async function get(kind, i, lim, st) {
-    // Gunakan Yahoo Finance untuk XAUUSD
-    const interval = i.yf;
-    const range = kind === 'k' ? '5d' : '1d';
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/XAUUSD=X?interval=${interval}&range=${range}`;
-    
     try {
-        const d = await safeFetch(url);
-        const result = d.chart.result[0];
-        
         if (kind === 'p') {
-            const p = result.meta.regularMarketPrice;
-            if (!(p > 0)) throw new Error('Invalid price');
-            $('src').textContent = 'Yahoo Finance';
-            return p;
-        }
-        
-        if (kind === 'k') {
-            const ts = result.timestamp;
-            const q = result.indicators.quote[0];
-            const rows = [];
-            for (let j = 0; j < ts.length; j++) {
-                if (q.open[j] === null || q.open[j] === undefined) continue;
-                rows.push([ts[j] * 1000, q.open[j], q.high[j], q.low[j], q.close[j]]);
-            }
-            if (rows.length < 50) throw new Error('Not enough data');
-            $('src').textContent = 'Yahoo Finance';
+            // Guna Gold-API untuk harga spot emas paling tepat
+            const d = await fetchJSON('https://api.gold-api.com/price/XAU');
+            price = d.price;
+            $('src').textContent = 'Gold-API';
+            return price;
+        } else if (kind === 'k') {
+            // Guna Coinbase untuk data candlestick (PAXG-USD proksi XAUUSD)
+            const url = `https://api.exchange.coinbase.com/products/PAXG-USD/candles?granularity=${i.cb}`;
+            const d = await fetchJSON(url);
+            
+            // Coinbase format: [ time, low, high, open, close, volume ] (Descending)
+            // Kita perlukan format: [ time(ms), open, high, low, close ] (Ascending)
+            const rows = d.map(x => [x[0] * 1000, x[3], x[2], x[1], x[4]]).reverse();
+            
+            if (rows.length < 50) throw new Error('Data tak cukup');
+            $('src').textContent = 'Coinbase (PAXG)';
             return rows;
         }
     } catch (e) {
-        console.log("Gagal guna Yahoo Finance:", e);
+        console.log("Ralat API:", e);
+        throw e;
     }
-    throw new Error('no data');
   }
 
   function conn(ok) {
@@ -190,11 +167,11 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
   
   async function loadK(t) {
     try { 
-        K[t] = (await get('k', TFS[t], 500)).map(x => [+x[0], +x[1], +x[2], +x[3], +x[4]]); 
+        K[t] = await get('k', TFS[t], 300); 
         conn(true); 
     } catch (e) { 
         conn(false); 
-        $('s-msg').textContent = 'Ralat data. Sila refresh atau semak internet.';
+        $('s-msg').textContent = 'Ralat data. Sila refresh page ini.';
     }
   }
   
@@ -211,6 +188,7 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
     try {
       price = await get('p'); conn(true);
       const now = Date.now(); $('upd').textContent = hhmm(now);
+      // Update candle semasa dengan harga live
       Object.keys(K).forEach(t => {
         const c = K[t][K[t].length - 1];
         if (now < c[0] + TFS[t].ms) { c[4] = price; c[2] = Math.max(c[2], price); c[3] = Math.min(c[3], price); }
@@ -320,7 +298,7 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
   async function replay() {
     const act = Object.keys(S).filter(t => !S[t].closed);
     if (!act.length) return;
-    const k1 = await get('k', TFS.M1, 1000, Math.min(...act.map(t => S[t].chk))), now = Date.now();
+    const k1 = await get('k', TFS.M1, 300), now = Date.now();
     act.forEach(t => {
       const s = S[t];
       for (const x of k1) {
@@ -368,8 +346,8 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
     let cls = 'wait', pill, msg = '', show = false, dtx = 'WAIT', dcl = '';
     
     if (!a) { 
-        pill = 'RALAT DATA / MEMUATKAN...'; 
-        msg = 'Memerlukan 210 data. Sila tunggu atau semak sambungan internet.'; 
+        pill = 'MEMUATKAN...'; 
+        msg = 'Mengambil data dari pelayan. Sila tunggu.'; 
     } else if (!s) {
       pill = 'MENUNGGU SETUP';
       if (Math.abs(a.score) >= MIN) {
@@ -407,4 +385,14 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
       });
       
       $('s-why1').textContent = 'Momentum ' + (s.dir > 0 ? 'BUY' : 'SELL') + ' · Confluence ' + sc(w.c) + '/7';
-      $('s-why').innerHTML = '<li>Trend ' + (w.h ? w.h + ' ' + (
+      $('s-why').innerHTML = '<li>Trend ' + (w.h ? w.h + ' ' + (s.dir > 0 ? 'Bullish' : 'Bearish') : 'ikut TF sendiri') + '</li><li>' +
+        (s.dir > 0 ? 'Swing Low ' : 'Swing High ') + f(w.sw) + '</li><li>RSI ' + w.rsi.toFixed(0) + ' · ATR $' + w.atr.toFixed(2) + '</li>';
+      $('s-time').textContent = 'Mula ' + hhmm(s.t);
+      $('s-r').textContent = '1R = ' + Math.round(s.r / PIP) + ' pip';
+    }
+    
+    $('votes').innerHTML = lv ? lv.V.map(v =>
+      '<div class="vt"><span class="nt">' + v[0] + '</span><span class="' + (v[1] > 0 ? 'up' : v[1] < 0 ? 'dn' : 'nt') + '">' + v[2] +
+      (v[1] > 0 ? ' ▲' : v[1] < 0 ? ' ▼' : ' •') + '</span></div>').join('') : '<div class="nt">Memuatkan...</div>';
+    $('score').textContent = lv && a ? 'Live ' + sc(lv.score) + ' · Tutup ' + sc(a.score) + ' / 7' : '--';
+    $('sco
