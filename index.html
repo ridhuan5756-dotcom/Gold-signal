@@ -45,7 +45,7 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
 <body>
 <div class="wrap">
   <div class="card row">
-    <div><div style="font-size:20px;font-weight:800">XAUUSD</div><div class="lbl">Feed: <span id="src">Memuatkan...</span></div></div>
+    <div><div style="font-size:20px;font-weight:800">XAUUSD</div><div class="lbl">Feed: <span id="src">Cloudflare</span></div></div>
     <div style="text-align:right">
       <div id="px" class="cy" style="font-size:26px;font-weight:800">--</div>
       <div class="lbl"><span id="dot" style="color:#eab308">●</span> <span id="conn">CONNECTING</span> · <span id="upd">--</span></div>
@@ -76,7 +76,7 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
       <div class="row"><input id="bp" type="number" step="0.01" inputmode="decimal" placeholder="Harga broker sekarang"><button id="sync" class="btn">Sync</button></div>
       <div class="row" style="margin-top:8px"><span class="lbl">Offset ($)</span><input id="off" type="number" step="0.01" inputmode="decimal" style="width:110px"></div>
     </div>
-    <p class="lbl" style="text-align:center;text-transform:none;letter-spacing:0">Data dari Gold-API & Coinbase. 1 pip = $0.10.</p>
+    <p class="lbl" style="text-align:center;text-transform:none;letter-spacing:0">Data dari Cloudflare Worker. 1 pip = $0.10.</p>
   </div>
 
   <div id="tab-cht" class="tab">
@@ -97,15 +97,18 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
 
 <script>
 (function () {
+  // PASTIKAN LINK INI SAMA DENGAN LINK CLOUDFLARE ANDA
+  const API_BASE = 'https://goldsignalpadu.ridhuan5756.workers.dev';
+  
   const MIN = 5, REV = -3, RSI_HI = 68, RSI_LO = 32, CH = 1.5, PIP = 0.1;
   
   const TFS = {
-    M1:{cb:60, tv:'1', ms:6e4}, 
-    M5:{cb:300, tv:'5', ms:3e5}, 
-    M15:{cb:900, tv:'15', ms:9e5},
-    M30:{cb:1800, tv:'30', ms:18e5}, 
-    H1:{cb:3600, tv:'60', ms:36e5}, 
-    H4:{cb:21600, tv:'240', ms:144e5}
+    M1:{b:'1m',tv:'1',ms:6e4}, 
+    M5:{b:'5m',tv:'5',ms:3e5}, 
+    M15:{b:'15m',tv:'15',ms:9e5},
+    M30:{b:'30m',tv:'30',ms:18e5}, 
+    H1:{b:'1h',tv:'60',ms:36e5}, 
+    H4:{b:'4h',tv:'240',ms:144e5}
   };
   const HTF = {M1:'M15', M5:'H1', M15:'H1', M30:'H4', H1:'H4', H4:null};
   
@@ -125,36 +128,22 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
   const hhmm = t => new Date(t).toLocaleTimeString('en-GB');
   const pip = (s, p) => Math.round((p - s.entry) * s.dir / PIP);
 
-  /* ---------- DATA FETCHING (FRONTEND SAHAJA) ---------- */
-  async function fetchJSON(url) {
-    const r = await fetch(url);
-    if (!r.ok) throw new Error('HTTP error');
-    return await r.json();
-  }
-
   async function get(kind, i, lim, st) {
     try {
         if (kind === 'p') {
-            // Gold-API untuk harga spot emas paling tepat
-            const d = await fetchJSON('https://api.gold-api.com/price/XAU');
+            const r = await fetch(API_BASE + '/?type=price');
+            const d = await r.json();
+            if (!d.price) throw new Error('No price');
             price = d.price;
-            $('src').textContent = 'Gold-API';
             return price;
         } else if (kind === 'k') {
-            // Coinbase untuk data candlestick (PAXG-USD proksi XAUUSD)
-            const url = `https://api.exchange.coinbase.com/products/PAXG-USD/candles?granularity=${i.cb}`;
-            const d = await fetchJSON(url);
-            
-            // Format Coinbase: [ time, low, high, open, close, volume ] (Descending)
-            // Kita perlukan: [ time(ms), open, high, low, close ] (Ascending)
-            const rows = d.map(x => [x[0] * 1000, x[3], x[2], x[1], x[4]]).reverse();
-            
-            if (rows.length < 50) throw new Error('Data tak cukup');
-            $('src').textContent = 'Coinbase (PAXG)';
-            return rows;
+            const r = await fetch(API_BASE + '/?type=kline&interval=' + i.b);
+            const d = await r.json();
+            if (!d.rows || d.rows.length < 50) throw new Error('No klines');
+            return d.rows;
         }
     } catch (e) {
-        console.log("Ralat API:", e);
+        console.log("Ralat API Cloudflare:", e);
         throw e;
     }
   }
@@ -170,7 +159,7 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
         conn(true); 
     } catch (e) { 
         conn(false); 
-        $('s-msg').textContent = 'Ralat data. Sila refresh page ini atau tukar ke WiFi/Data lain.';
+        $('s-msg').textContent = 'Ralat data. Sila refresh page ini.';
     }
   }
   
@@ -187,7 +176,6 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
     try {
       price = await get('p'); conn(true);
       const now = Date.now(); $('upd').textContent = hhmm(now);
-      // Update candle semasa dengan harga live
       Object.keys(K).forEach(t => {
         const c = K[t][K[t].length - 1];
         if (now < c[0] + TFS[t].ms) { c[4] = price; c[2] = Math.max(c[2], price); c[3] = Math.min(c[3], price); }
@@ -196,7 +184,6 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
     } catch (e) { conn(false); }
   }
 
-  /* ---------- INDIKATOR ---------- */
   const ema = (a, p) => { const k = 2 / (p + 1); let e = a[0]; return a.map((v, i) => i ? (e = v * k + e * (1 - k)) : e); };
   function rsi(c, p) {
     let g = 0, l = 0, i, d;
@@ -259,7 +246,6 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
             hi: Math.max(...h.slice(-10)), lo: Math.min(...l.slice(-10))};
   }
 
-  /* ---------- SIGNAL ENGINE ---------- */
   function hit(s, lo, hi) {
     const bad = s.dir > 0 ? lo : hi, good = s.dir > 0 ? hi : lo;
     s.pk = s.dir > 0 ? Math.max(s.pk, hi) : Math.min(s.pk, lo);
@@ -338,15 +324,14 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
     render();
   }
 
-  /* ---------- UI ---------- */
   function render() {
     const s = S[tf], A0 = A[tf], a = A0 && A0.cl, lv = A0 && A0.lv;
     $('px').textContent = price ? f(price) : '--';
     let cls = 'wait', pill, msg = '', show = false, dtx = 'WAIT', dcl = '';
     
     if (!a) { 
-        pill = 'MEMUATKAN...'; 
-        msg = 'Mengambil data dari pelayan. Sila tunggu.'; 
+        pill = 'MENGAMBIL DATA...'; 
+        msg = 'Mengambil data dari Cloudflare. Sila tunggu.'; 
     } else if (!s) {
       pill = 'MENUNGGU SETUP';
       if (Math.abs(a.score) >= MIN) {
@@ -394,4 +379,14 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
       '<div class="vt"><span class="nt">' + v[0] + '</span><span class="' + (v[1] > 0 ? 'up' : v[1] < 0 ? 'dn' : 'nt') + '">' + v[2] +
       (v[1] > 0 ? ' ▲' : v[1] < 0 ? ' ▼' : ' •') + '</span></div>').join('') : '<div class="nt">Memuatkan...</div>';
     $('score').textContent = lv && a ? 'Live ' + sc(lv.score) + ' · Tutup ' + sc(a.score) + ' / 7' : '--';
-    $('score').className = a && a.score >= MIN ? 'up' : a && a.score <= -MIN ? 'dn' 
+    $('score').className = a && a.score >= MIN ? 'up' : a && a.score <= -MIN ? 'dn' : 'nt';
+    
+    const H = HTF[tf] && A[HTF[tf]] && A[HTF[tf]].cl;
+    $('meta').textContent = a ? 'ATR $' + a.atr.toFixed(2) + (HTF[tf] ? ' · Trend ' + HTF[tf] + ': ' + (H ? (H.bias > 0 ? 'Bullish' : H.bias < 0 ? 'Bearish' : 'Mixed') : '...') : '') + ' · signal ikut score candle tutup' : '';
+    
+    const n = log.length, wins = log.filter(x => x.p > 0).length;
+    $('stat').innerHTML = n ? `Win rate: <span class="up">${Math.round(wins/n*100)}%</span> (${wins}/${n})` : 'Tiada rekod.';
+    $('log').innerHTML = log.map(x =>
+      `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1b2a44;font-size:12px">
+        <span class="nt">${hhmm(x.t)} ${x.tf}</span>
+        <span class
