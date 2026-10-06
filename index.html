@@ -27,11 +27,14 @@
         .glow-gold { box-shadow: 0 0 12px rgba(240, 185, 11, 0.12); }
         .glow-green { box-shadow: 0 0 12px rgba(34, 197, 94, 0.15); }
         .glow-yellow { box-shadow: 0 0 12px rgba(234, 179, 8, 0.15); }
-        
+
         /* Custom Tab Styling */
         .tf-tab-btn {
             transition: all 0.2s ease-in-out;
+            touch-action: manipulation;
+            cursor: pointer;
         }
+        .tf-tab-btn * { pointer-events: none; }
         .tf-tab-btn.active {
             background-color: #16a34a;
             color: #ffffff;
@@ -43,8 +46,8 @@
 <body class="bg-dark-bg text-gray-100 font-sans min-h-screen p-2.5 md:p-5 notranslate">
 
     <div class="max-w-7xl mx-auto space-y-3.5 md:space-y-5">
-        
-        <!-- HEADER KEMAS & COMPACT -->
+
+        <!-- HEADER -->
         <header class="flex justify-between items-center bg-dark-card border border-dark-border px-3.5 py-2.5 rounded-xl">
             <div>
                 <h1 class="text-base md:text-xl font-extrabold text-yellow-500 tracking-wide flex items-center gap-1.5">
@@ -60,7 +63,7 @@
 
         <!-- TOP BAR: HARGA SEMASA & GAUGE METER -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
-            
+
             <!-- TRADINGVIEW SINGLE QUOTE -->
             <div class="lg:col-span-4 bg-dark-card border border-dark-border rounded-xl p-3 glow-gold">
                 <div class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-1">
@@ -84,7 +87,7 @@
 
         </div>
 
-        <!-- REKA BENTUK TIMEFRAME TAB BAR BARU (PRO UI & FULLY TOUCH FRIENDLY) -->
+        <!-- TIMEFRAME TAB BAR -->
         <div class="bg-dark-card border border-dark-border p-1.5 rounded-xl shadow-lg">
             <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1.5 px-1 flex justify-between">
                 <span>Pilih Timeframe Analisis:</span>
@@ -112,10 +115,10 @@
 
         <!-- MAIN CONTENT: PARAS DAGANGAN & CARTA -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            
+
             <!-- PARAS DAGANGAN & RINGKASAN -->
             <div class="lg:col-span-4 space-y-3">
-                
+
                 <!-- PARAS HARGA -->
                 <div class="bg-dark-card border border-dark-border rounded-xl p-3.5 space-y-2.5">
                     <h2 id="display-tf-title" class="text-xs font-bold text-yellow-400 uppercase tracking-wider border-b border-dark-border pb-1.5">
@@ -182,7 +185,7 @@
                         <span id="chart-title-tf">Carta Live (TradingView - M15)</span>
                         <span class="text-[9px] text-green-400">● Live Active</span>
                     </div>
-                    
+
                     <div class="w-full h-full rounded-lg overflow-hidden border border-dark-border">
                         <iframe id="iframe-chart" src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=OANDA%3AXAUUSD&interval=15&hidesidetoolbar=0&symboledit=0&saveimage=1&toolbarbg=11151c&bordercolor=1e2430&theme=dark&style=1&timezone=Asia%2FKuala_Lumpur" style="width: 100%; height: 100%; border: none;"></iframe>
                     </div>
@@ -284,33 +287,33 @@
 
     </div>
 
-    <!-- SCRIPT TUKAR TIMEFRAME PANTAS & STABIL -->
+    <!-- SCRIPT TUKAR TIMEFRAME -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var currentLivePrice = 4151.35;
-            var selectedTimeframe = 'M15';
+    (function () {
+        var BASE = 4151.35; // harga rujukan entry
 
-            var tfDatabase = {
-                'M5': {
-                    title: 'M5 (SCALP) PARAS DAGANGAN',
-                    tvInterval: '5',
-                    tvGaugeInterval: '5m',
-                    tp1Offset: 4.00, tp2Offset: 8.00, slOffset: 4.00,
-                    rsi: 'Bullish Scalp', ema: 'EMA 9/21 Cross Up', atr: '$4.20 (Sederhana)', smc: '5m FVG Rejection',
-                    desc: 'Timeframe M5 sesuai untuk dagangan pantas (Scalping) dengan sasaran TP/SL nipis.',
-                    signalBadge: 'SIGNAL: SCALP BUY (FAST ENTRY)',
-                    signalBadgeClass: 'bg-green-500/20 text-green-400 border-green-500/30',
-                    oscStatus: 'Bullish Momentum', rsiDetail: '64.2 (Strong)', stochDetail: '75.0 (High)', macdDetail: 'Bullish Histogram', cciDetail: '+120.5 (Speed)',
-                    maStatus: 'Bullish Crossover', emaFast: 'EMA 9 > EMA 21', ema50: 'Price Above', ema200: 'Price Above', maBias: 'Short-term Bullish',
-                    r2Offset: 10.00, r1Offset: 5.00, s1Offset: 4.00, s2Offset: 8.00,
-                    strategyDesc: 'Gunakan teknik Scalping. Ambil entry BUY apabila harga bertindak balas di EMA 9/21 atau FVG M5.',
-                    riskPct: 'Maksimum 1.0%', rrRatio: '1 : 1 atau 1 : 1.5', lotAdvice: '0.01 / $300 - $500',
-                    sessionDesc: 'Fokus berdagang pada waktu puncak volatiliti (London & NY Open).'
-                },
-                'M15': {
-                    title: 'M15 (INTRADAY) PARAS DAGANGAN',
-                    tvInterval: '15',
-                    tvGaugeInterval: '15m',
-                    tp1Offset: 10.00, tp2Offset: 20.00, slOffset: 10.00,
-                    rsi: 'Bullish Intraday', ema: 'EMA 50/200 Up', atr: '$12.50 (Normal)', smc: 'Bullish Orderblock',
-                    desc: 'Timeframe M15 adalah rujukan utama zon entry Intr
+        var SESSION = 'Sesuai didagangkan sepanjang Sesi London & New York (3:30 PM - 11:00 PM).';
+
+        // NOTA: H1 & H4 = nilai placeholder. Tukar ikut data asal kau.
+        var TF = {
+            M5: {
+                title: 'M5 (SCALP) PARAS DAGANGAN', chart: '5', gauge: '5m',
+                tp1: 4, tp2: 8, sl: 4, r1: 5, r2: 10, s1: 4, s2: 8,
+                bias: 'Bullish Scalp', ema: 'EMA 9/21 Cross Up', atr: '$4.20 (Sederhana)', smc: '5m FVG Rejection',
+                desc: 'Timeframe M5 sesuai untuk dagangan pantas (Scalping) dengan sasaran TP/SL nipis.',
+                signal: 'SIGNAL: SCALP BUY (FAST ENTRY)', up: true,
+                osc: 'Bullish Momentum', rsi: '64.2 (Strong)', stoch: '75.0 (High)', macd: 'Bullish Histogram', cci: '+120.5 (Speed)',
+                maSt: 'Bullish Crossover', emaFast: 'EMA 9 > EMA 21', ema50: 'Price Above', ema200: 'Price Above', maBias: 'Short-term Bullish',
+                strategy: 'Gunakan teknik Scalping. Ambil entry BUY apabila harga bertindak balas di EMA 9/21 atau FVG M5.',
+                risk: 'Maksimum 1.0%', rr: '1 : 1 atau 1 : 1.5', lot: '0.01 / $300 - $500',
+                session: 'Fokus berdagang pada waktu puncak volatiliti (London & NY Open).'
+            },
+            M15: {
+                title: 'M15 (INTRADAY) PARAS DAGANGAN', chart: '15', gauge: '15m',
+                tp1: 10, tp2: 20, sl: 10, r1: 10, r2: 20, s1: 10, s2: 18,
+                bias: 'Bullish Momentum', ema: 'Above EMA 50/200', atr: '$12.50', smc: 'Orderblock Zone',
+                desc: 'Timeframe M15 adalah rujukan utama zon entry Intraday dengan nisbah ketepatan tinggi.',
+                signal: 'SIGNAL: BUY / BULLISH CONFIRMED', up: true,
+                osc: 'Bullish', rsi: '58.4 (Bullish)', stoch: '62.1 (Upward)', macd: 'Above Signal', cci: '+104 (Buyers)',
+                maSt: 'Strong Buy', emaFast: 'Golden Cross', ema50: 'Price Above', ema200: 'Price Above', maBias: 'Uptrend',
+                st
