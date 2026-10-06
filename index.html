@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XAUUSD Live Signal & Chart</title>
+    <title>XAUUSD Live Signal & Dynamic Timeframe System</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -25,6 +25,7 @@
         .glow-gold { box-shadow: 0 0 15px rgba(240, 185, 11, 0.15); }
         .glow-green { box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
         .glow-yellow { box-shadow: 0 0 15px rgba(234, 179, 8, 0.2); }
+        .glow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
     </style>
 </head>
 <body class="bg-dark-bg text-gray-100 font-sans min-h-screen p-3 md:p-6">
@@ -45,7 +46,7 @@
             </div>
         </header>
 
-        <!-- TOP BAR: TRADINGVIEW LIVE TICKER & ACCURATE TECHNICAL ANALYSIS GAUGE -->
+        <!-- TOP BAR: TRADINGVIEW LIVE TICKER & TECHNICAL GAUGE -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
             
             <!-- TRADINGVIEW SINGLE QUOTE WIDGET -->
@@ -53,13 +54,13 @@
                 <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2">
                     Harga Semasa Pasaran (OANDA:XAUUSD)
                 </div>
-                <div class="w-full h-[100px] overflow-hidden rounded-xl">
+                <div class="w-full h-[110px] overflow-hidden rounded-xl">
                     <iframe src="https://s.tradingview.com/embed-widget/single-quote/?locale=en&symbol=OANDA%3AXAUUSD&colorTheme=dark&isTransparent=true" style="width: 100%; height: 100%; border: none;"></iframe>
                 </div>
                 <div class="text-[10px] text-gray-500 text-right mt-1">Direct Feed: TradingView Real-Time Engine</div>
             </div>
 
-            <!-- TRADINGVIEW TECHNICAL ANALYSIS GAUGE (STABLE IFRAME) -->
+            <!-- TRADINGVIEW TECHNICAL ANALYSIS GAUGE (AUTO SYNC WITH SELECTED TF) -->
             <div class="lg:col-span-8 bg-dark-card border border-dark-border rounded-2xl p-4 flex flex-col justify-between">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Analisis Teknikal Real-Time (26 Indicators)</span>
@@ -72,21 +73,21 @@
 
         </div>
 
-        <!-- TIMEFRAME SELECTOR BUTTONS -->
+        <!-- TIMEFRAME SELECTOR BUTTONS (INTERACTIVE) -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <button onclick="selectTimeframe('M5')" id="btn-tf-M5" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl transition-all duration-200 hover:border-yellow-500/50">
+            <button type="button" onclick="selectTimeframe('M5')" id="btn-tf-M5" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl transition-all duration-200 hover:border-yellow-500/50 cursor-pointer">
                 <div id="label-tf-M5" class="text-gray-400 font-bold text-sm">M5</div>
                 <div class="text-xs text-gray-500">SCALP (5 Min)</div>
             </button>
-            <button onclick="selectTimeframe('M15')" id="btn-tf-M15" class="tf-card text-left bg-dark-bg/80 border-2 border-green-500 glow-green p-3.5 rounded-xl transition-all duration-200">
+            <button type="button" onclick="selectTimeframe('M15')" id="btn-tf-M15" class="tf-card text-left bg-dark-bg/80 border-2 border-green-500 glow-green p-3.5 rounded-xl transition-all duration-200 cursor-pointer">
                 <div id="label-tf-M15" class="text-green-400 font-bold text-sm">M15 (Aktif)</div>
                 <div class="text-xs text-gray-500">INTRADAY (15 Min)</div>
             </button>
-            <button onclick="selectTimeframe('H1')" id="btn-tf-H1" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl transition-all duration-200 hover:border-yellow-500/50">
+            <button type="button" onclick="selectTimeframe('H1')" id="btn-tf-H1" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl transition-all duration-200 hover:border-yellow-500/50 cursor-pointer">
                 <div id="label-tf-H1" class="text-gray-400 font-bold text-sm">H1</div>
                 <div class="text-xs text-gray-500">DAY TRADE (1 Jam)</div>
             </button>
-            <button onclick="selectTimeframe('H4')" id="btn-tf-H4" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl transition-all duration-200 hover:border-yellow-500/50">
+            <button type="button" onclick="selectTimeframe('H4')" id="btn-tf-H4" class="tf-card text-left bg-dark-bg/80 border border-dark-border p-3.5 rounded-xl transition-all duration-200 hover:border-yellow-500/50 cursor-pointer">
                 <div id="label-tf-H4" class="text-gray-400 font-bold text-sm">H4</div>
                 <div class="text-xs text-gray-500">SWING (4 Jam)</div>
             </button>
@@ -95,7 +96,7 @@
         <!-- MAIN CONTENT GRID: PARAS DAGANGAN & CARTA -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- LEFT COLUMN: PARAS DAGANGAN & STRUCTURE SUMMARY (4 COLS) -->
+            <!-- LEFT COLUMN: PARAS DAGANGAN & STRUCTURE SUMMARY -->
             <div class="lg:col-span-4 space-y-4">
                 
                 <!-- KAD PARAS HARGA DAGANGAN -->
@@ -107,25 +108,25 @@
                     <!-- ENTRY -->
                     <div class="flex justify-between items-center bg-dark-bg p-2.5 rounded-xl border border-dark-border">
                         <span class="text-xs text-gray-400 font-medium">Zon Entry (Cadangan)</span>
-                        <span id="display-entry-price" class="font-mono font-bold text-blue-400 text-sm">$4,141.50</span>
+                        <span id="display-entry-price" class="font-mono font-bold text-blue-400 text-sm">$4,151.35</span>
                     </div>
 
                     <!-- TP 1 -->
                     <div class="flex justify-between items-center bg-dark-bg p-2.5 rounded-xl border border-green-500/30">
                         <span class="text-xs text-green-400 font-medium">Take Profit 1 (TP1)</span>
-                        <span id="display-tp1-price" class="font-mono font-bold text-green-400 text-sm">$4,151.50</span>
+                        <span id="display-tp1-price" class="font-mono font-bold text-green-400 text-sm">$4,161.35</span>
                     </div>
 
                     <!-- TP 2 -->
                     <div class="flex justify-between items-center bg-dark-bg p-2.5 rounded-xl border border-green-500/30">
                         <span class="text-xs text-green-400 font-medium">Take Profit 2 (TP2)</span>
-                        <span id="display-tp2-price" class="font-mono font-bold text-green-400 text-sm">$4,161.50</span>
+                        <span id="display-tp2-price" class="font-mono font-bold text-green-400 text-sm">$4,171.35</span>
                     </div>
 
                     <!-- SL -->
                     <div class="flex justify-between items-center bg-dark-bg p-2.5 rounded-xl border border-red-500/30">
                         <span class="text-xs text-red-400 font-medium">Stop Loss (SL)</span>
-                        <span id="display-sl-price" class="font-mono font-bold text-red-400 text-sm">$4,131.50</span>
+                        <span id="display-sl-price" class="font-mono font-bold text-red-400 text-sm">$4,141.35</span>
                     </div>
                 </div>
 
@@ -161,11 +162,11 @@
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: TRADINGVIEW LIVE CHART (STABLE IFRAME) -->
+            <!-- RIGHT COLUMN: TRADINGVIEW LIVE CHART (DYNAMICAL UPDATE) -->
             <div class="lg:col-span-8">
                 <div class="bg-dark-card border border-dark-border rounded-2xl p-3 h-[500px] lg:h-[620px] flex flex-col">
                     <div class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-2 px-1 flex justify-between items-center">
-                        <span>Carta Interaktif Live (TradingView Engine)</span>
+                        <span id="chart-title-tf">Carta Interaktif Live (TradingView Engine - M15)</span>
                         <span class="text-[10px] text-green-400">● Live Feed Active</span>
                     </div>
                     
@@ -227,10 +228,10 @@
                         <span class="text-yellow-400 font-semibold">Pivot Levels</span>
                     </div>
                     <div class="space-y-1.5 text-gray-400">
-                        <div class="flex justify-between"><span>Rintangan 2 (R2):</span> <span id="tech-r2" class="font-mono text-red-400">$4,161.50</span></div>
-                        <div class="flex justify-between"><span>Rintangan 1 (R1):</span> <span id="tech-r1" class="font-mono text-red-400">$4,151.50</span></div>
-                        <div class="flex justify-between"><span>Sokongan 1 (S1):</span> <span id="tech-s1" class="font-mono text-green-400">$4,131.50</span></div>
-                        <div class="flex justify-between"><span>Sokongan 2 (S2):</span> <span id="tech-s2" class="font-mono text-green-400">$4,123.50</span></div>
+                        <div class="flex justify-between"><span>Rintangan 2 (R2):</span> <span id="tech-r2" class="font-mono text-red-400">$4,171.35</span></div>
+                        <div class="flex justify-between"><span>Rintangan 1 (R1):</span> <span id="tech-r1" class="font-mono text-red-400">$4,161.35</span></div>
+                        <div class="flex justify-between"><span>Sokongan 1 (S1):</span> <span id="tech-s1" class="font-mono text-green-400">$4,141.35</span></div>
+                        <div class="flex justify-between"><span>Sokongan 2 (S2):</span> <span id="tech-s2" class="font-mono text-green-400">$4,133.35</span></div>
                     </div>
                 </div>
             </div>
@@ -257,7 +258,7 @@
 
                 <div class="bg-dark-bg p-4 rounded-xl border border-dark-border space-y-2">
                     <div class="flex items-center gap-2 text-green-400 font-bold border-b border-dark-border/60 pb-1.5">
-                        <span>🛡️ Pengurusan Risiko (Money Management)</span>
+                        <span>🛡️️ Pengurusan Risiko (Money Management)</span>
                     </div>
                     <ul class="text-gray-300 space-y-1 list-disc list-inside">
                         <li><strong>Risiko Akaun:</strong> <span id="plan-risk-pct">Maksimum 1.5% - 2.0% per trade</span></li>
@@ -280,15 +281,15 @@
 
     </div>
 
-    <!-- DYNAMIC SIGNAL & TIMEFRAME SWITCHER -->
+    <!-- DYNAMIC SIGNAL & TIMEFRAME SWITCHER SCRIPT -->
     <script>
-        var currentLivePrice = 4136.80; 
+        var currentLivePrice = 4151.35; 
         var selectedTimeframe = 'M15';
-        var priceInterval = null;
 
+        // PANGKALAN DATA SETIAP TIMEFRAME
         var tfDatabase = {
             'M5': {
-                title: 'M5 (SCALP)',
+                title: 'M5 (SCALP) PARAS DAGANGAN',
                 tvInterval: '5',
                 tvGaugeInterval: '5m',
                 cardGlowClass: 'border-green-500 glow-green',
@@ -297,6 +298,4 @@
                 desc: 'Timeframe M5 sesuai untuk dagangan pantas (Scalping) dengan sasaran TP/SL nipis.',
                 signalBadge: 'SIGNAL: SCALP BUY (FAST ENTRY)',
                 signalBadgeClass: 'bg-green-500/20 text-green-400 border-green-500/30',
-                oscStatus: 'Bullish Momentum', rsiDetail: '64.2 (Strong Momentum)', stochDetail: '75.0 (Approaching OB)', macdDetail: 'Bullish Histogram', cciDetail: '+120.5 (High Speed)',
-                maStatus: 'Bullish Crossover', emaFast: 'EMA 9 > EMA 21 (Up)', ema50: 'Price Above EMA 50', ema200: 'Price Above EMA 200', maBias: 'Short-term Bullish',
-                r2Offset: 10.00, r1Offset:
+                oscStatus: 'Bullish Momentum', rsiDetail: '64.2 (Strong Momentum)', stochDetail: '75.0 (Approaching OB)', macdDetail: 'Bu
