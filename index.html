@@ -1,319 +1,355 @@
 <!DOCTYPE html>
 <html lang="ms" class="dark" translate="no">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="google" content="notranslate">
-    <title>XAUUSD Live Signal & Pro Dashboard</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        'dark-bg': '#080a0f',
-                        'dark-card': '#11151c',
-                        'dark-border': '#1e2430',
-                        'gold-accent': '#f0b90b'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { -webkit-tap-highlight-color: transparent; }
-        .glow-gold { box-shadow: 0 0 12px rgba(240, 185, 11, 0.12); }
-        .glow-green { box-shadow: 0 0 12px rgba(34, 197, 94, 0.15); }
-        .glow-yellow { box-shadow: 0 0 12px rgba(234, 179, 8, 0.15); }
-
-        /* Custom Tab Styling */
-        .tf-tab-btn {
-            transition: all 0.2s ease-in-out;
-            touch-action: manipulation;
-            cursor: pointer;
-        }
-        .tf-tab-btn * { pointer-events: none; }
-        .tf-tab-btn.active {
-            background-color: #16a34a;
-            color: #ffffff;
-            font-weight: 700;
-            box-shadow: 0 2px 10px rgba(22, 163, 74, 0.4);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="google" content="notranslate">
+<title>XAUUSD Live Signal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{colors:{'dark-bg':'#080a0f','dark-card':'#11151c','dark-border':'#1e2430'}}}}</script>
+<style>
+body{-webkit-tap-highlight-color:transparent}
+.tf-btn{touch-action:manipulation;cursor:pointer;background:transparent}
+.tf-btn.active{background:#16a34a;color:#fff;font-weight:700}
+.sig{border:1px solid #1e2430;border-radius:12px;padding:12px;background:#11151c}
+.sig.buy,.sig.win{border-color:#16a34a;box-shadow:0 0 14px rgba(34,197,94,.2)}
+.sig.sell,.sig.fail{border-color:#dc2626;box-shadow:0 0 14px rgba(220,38,38,.2)}
+.sig.wait #sig-title{color:#facc15}
+.sig.buy #sig-title,.sig.win #sig-title{color:#4ade80}
+.sig.sell #sig-title,.sig.fail #sig-title{color:#f87171}
+.dim .lv{opacity:.35;text-decoration:line-through}
+.up{color:#4ade80}.dn{color:#f87171}.nt{color:#9ca3af}
+</style>
 </head>
-<body class="bg-dark-bg text-gray-100 font-sans min-h-screen p-2.5 md:p-5 notranslate">
+<body class="bg-dark-bg text-gray-100 font-sans min-h-screen p-2.5 notranslate">
+<div class="max-w-3xl mx-auto space-y-3">
 
-    <div class="max-w-7xl mx-auto space-y-3.5 md:space-y-5">
-
-        <!-- HEADER -->
-        <header class="flex justify-between items-center bg-dark-card border border-dark-border px-3.5 py-2.5 rounded-xl">
-            <div>
-                <h1 class="text-base md:text-xl font-extrabold text-yellow-500 tracking-wide flex items-center gap-1.5">
-                    ⚡ GOLD (XAU/USD) AI SIGNAL
-                </h1>
-                <p class="text-[10px] md:text-xs text-gray-400">Analisis Teknikal & Sinyal Real-Time</p>
-            </div>
-            <div class="flex items-center space-x-1.5 bg-dark-bg/80 px-2.5 py-1 rounded-lg border border-dark-border">
-                <span id="connection-dot" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span id="connection-status" class="text-[10px] md:text-xs font-mono font-bold text-green-400">LIVE</span>
-            </div>
-        </header>
-
-        <!-- TOP BAR: HARGA SEMASA & GAUGE METER -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
-
-            <!-- TRADINGVIEW SINGLE QUOTE -->
-            <div class="lg:col-span-4 bg-dark-card border border-dark-border rounded-xl p-3 glow-gold">
-                <div class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-1">
-                    Harga Semasa Pasaran (OANDA:XAUUSD)
-                </div>
-                <div class="w-full h-[95px] overflow-hidden rounded-lg">
-                    <iframe src="https://s.tradingview.com/embed-widget/single-quote/?locale=en&symbol=OANDA%3AXAUUSD&colorTheme=dark&isTransparent=true" style="width: 100%; height: 100%; border: none;"></iframe>
-                </div>
-            </div>
-
-            <!-- TRADINGVIEW TECHNICAL GAUGE -->
-            <div class="lg:col-span-8 bg-dark-card border border-dark-border rounded-xl p-3">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Analisis Teknikal Real-Time (26 Indicators)</span>
-                    <span id="tv-gauge-tf-badge" class="text-[9px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded font-mono font-bold">M15</span>
-                </div>
-                <div class="w-full h-[200px] rounded-lg overflow-hidden">
-                    <iframe id="iframe-gauge" src="https://s.tradingview.com/embed-widget/technical-analysis/?locale=en&symbol=OANDA%3AXAUUSD&colorTheme=dark&isTransparent=true&interval=15m&width=100%25&height=100%25" style="width: 100%; height: 100%; border: none;"></iframe>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- TIMEFRAME TAB BAR -->
-        <div class="bg-dark-card border border-dark-border p-1.5 rounded-xl shadow-lg">
-            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1.5 px-1 flex justify-between">
-                <span>Pilih Timeframe Analisis:</span>
-                <span id="active-tf-label" class="text-green-400 font-mono">M15 (Aktif)</span>
-            </div>
-            <div class="grid grid-cols-4 gap-1.5 bg-dark-bg p-1 rounded-lg border border-dark-border/60">
-                <button type="button" data-tf="M5" class="tf-tab-btn py-2 px-1 rounded-md text-xs text-center text-gray-300 font-semibold hover:bg-dark-border">
-                    <div>M5</div>
-                    <div class="text-[9px] text-gray-400 font-normal">SCALP</div>
-                </button>
-                <button type="button" data-tf="M15" class="tf-tab-btn active py-2 px-1 rounded-md text-xs text-center text-gray-300 font-semibold hover:bg-dark-border">
-                    <div>M15</div>
-                    <div class="text-[9px] text-gray-200 font-normal">INTRADAY</div>
-                </button>
-                <button type="button" data-tf="H1" class="tf-tab-btn py-2 px-1 rounded-md text-xs text-center text-gray-300 font-semibold hover:bg-dark-border">
-                    <div>H1</div>
-                    <div class="text-[9px] text-gray-400 font-normal">DAY TRADE</div>
-                </button>
-                <button type="button" data-tf="H4" class="tf-tab-btn py-2 px-1 rounded-md text-xs text-center text-gray-300 font-semibold hover:bg-dark-border">
-                    <div>H4</div>
-                    <div class="text-[9px] text-gray-400 font-normal">SWING</div>
-                </button>
-            </div>
-        </div>
-
-        <!-- MAIN CONTENT: PARAS DAGANGAN & CARTA -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-
-            <!-- PARAS DAGANGAN & RINGKASAN -->
-            <div class="lg:col-span-4 space-y-3">
-
-                <!-- PARAS HARGA -->
-                <div class="bg-dark-card border border-dark-border rounded-xl p-3.5 space-y-2.5">
-                    <h2 id="display-tf-title" class="text-xs font-bold text-yellow-400 uppercase tracking-wider border-b border-dark-border pb-1.5">
-                        M15 (INTRADAY) PARAS DAGANGAN
-                    </h2>
-
-                    <div class="flex justify-between items-center bg-dark-bg p-2 rounded-lg border border-dark-border">
-                        <span class="text-xs text-gray-400">Zon Entry (Cadangan)</span>
-                        <span id="display-entry-price" class="font-mono font-bold text-blue-400 text-xs">$4,151.35</span>
-                    </div>
-
-                    <div class="flex justify-between items-center bg-dark-bg p-2 rounded-lg border border-green-500/20">
-                        <span class="text-xs text-green-400">Take Profit 1 (TP1)</span>
-                        <span id="display-tp1-price" class="font-mono font-bold text-green-400 text-xs">$4,161.35</span>
-                    </div>
-
-                    <div class="flex justify-between items-center bg-dark-bg p-2 rounded-lg border border-green-500/20">
-                        <span class="text-xs text-green-400">Take Profit 2 (TP2)</span>
-                        <span id="display-tp2-price" class="font-mono font-bold text-green-400 text-xs">$4,171.35</span>
-                    </div>
-
-                    <div class="flex justify-between items-center bg-dark-bg p-2 rounded-lg border border-red-500/20">
-                        <span class="text-xs text-red-400">Stop Loss (SL)</span>
-                        <span id="display-sl-price" class="font-mono font-bold text-red-400 text-xs">$4,141.35</span>
-                    </div>
-                </div>
-
-                <!-- RINGKASAN STRUKTUR -->
-                <div class="bg-dark-card border border-dark-border rounded-xl p-3.5 space-y-2.5">
-                    <div class="flex justify-between items-center border-b border-dark-border pb-1.5">
-                        <h3 class="text-xs font-bold text-gray-300 uppercase">Ringkasan Struktur</h3>
-                        <span id="indicator-tf-badge" class="text-[9px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded font-mono">M15 DATA</span>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <div class="bg-dark-bg p-2 rounded-lg">
-                            <span class="text-gray-400 block text-[9px]">Bias Trend</span>
-                            <span id="rsi-val" class="font-semibold text-green-400">Bullish Momentum</span>
-                        </div>
-                        <div class="bg-dark-bg p-2 rounded-lg">
-                            <span class="text-gray-400 block text-[9px]">EMA Filter</span>
-                            <span id="ema-val" class="font-semibold text-green-400">Above EMA 50/200</span>
-                        </div>
-                        <div class="bg-dark-bg p-2 rounded-lg">
-                            <span class="text-gray-400 block text-[9px]">Avg Volatility</span>
-                            <span id="atr-val" class="font-semibold text-gray-200">$12.50</span>
-                        </div>
-                        <div class="bg-dark-bg p-2 rounded-lg">
-                            <span class="text-gray-400 block text-[9px]">SMC Structure</span>
-                            <span id="smc-val" class="font-semibold text-yellow-400">Orderblock Zone</span>
-                        </div>
-                    </div>
-
-                    <p id="tf-description" class="text-xs text-gray-400 leading-relaxed bg-dark-bg/50 p-2 rounded-lg border border-dark-border/40">
-                        Timeframe M15 adalah rujukan utama zon entry Intraday dengan nisbah ketepatan tinggi.
-                    </p>
-                </div>
-            </div>
-
-            <!-- CARTA LIVE TRADINGVIEW -->
-            <div class="lg:col-span-8">
-                <div class="bg-dark-card border border-dark-border rounded-xl p-2.5 h-[480px] lg:h-[580px] flex flex-col">
-                    <div class="text-[11px] text-gray-400 font-semibold uppercase tracking-wider mb-1.5 px-1 flex justify-between items-center">
-                        <span id="chart-title-tf">Carta Live (TradingView - M15)</span>
-                        <span class="text-[9px] text-green-400">● Live Active</span>
-                    </div>
-
-                    <div class="w-full h-full rounded-lg overflow-hidden border border-dark-border">
-                        <iframe id="iframe-chart" src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=OANDA%3AXAUUSD&interval=15&hidesidetoolbar=0&symboledit=0&saveimage=1&toolbarbg=11151c&bordercolor=1e2430&theme=dark&style=1&timezone=Asia%2FKuala_Lumpur" style="width: 100%; height: 100%; border: none;"></iframe>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- DETAILED TECHNICAL BREAKDOWN -->
-        <div class="bg-dark-card border border-dark-border rounded-xl p-4 space-y-3">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-dark-border pb-2.5 gap-2">
-                <div>
-                    <h2 class="text-xs md:text-sm font-bold text-yellow-400 uppercase tracking-wide">
-                        📊 DETAILED TECHNICAL BREAKDOWN
-                    </h2>
-                    <p class="text-[10px] text-gray-400">Perincian indikator mengikut timeframe aktif</p>
-                </div>
-                <div id="tech-signal-badge" class="px-2.5 py-1 rounded-lg text-xs font-bold font-mono bg-green-500/20 text-green-400 border border-green-500/30">
-                    SIGNAL: BUY / BULLISH CONFIRMED
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                <div class="bg-dark-bg p-3 rounded-lg border border-dark-border space-y-2">
-                    <div class="font-bold text-gray-300 border-b border-dark-border/60 pb-1 flex justify-between">
-                        <span>1. Oscillators Analysis</span>
-                        <span id="tech-osc-status" class="text-green-400">Bullish</span>
-                    </div>
-                    <div class="space-y-1 text-gray-400 text-[11px]">
-                        <div class="flex justify-between"><span>RSI (14):</span> <span id="tech-rsi-detail" class="font-mono text-gray-200">58.4 (Bullish)</span></div>
-                        <div class="flex justify-between"><span>Stochastic:</span> <span id="tech-stoch-detail" class="font-mono text-gray-200">62.1 (Upward)</span></div>
-                        <div class="flex justify-between"><span>MACD Line:</span> <span id="tech-macd-detail" class="font-mono text-green-400">Above Signal</span></div>
-                        <div class="flex justify-between"><span>CCI (20):</span> <span id="tech-cci-detail" class="font-mono text-gray-200">+104 (Buyers)</span></div>
-                    </div>
-                </div>
-
-                <div class="bg-dark-bg p-3 rounded-lg border border-dark-border space-y-2">
-                    <div class="font-bold text-gray-300 border-b border-dark-border/60 pb-1 flex justify-between">
-                        <span>2. Moving Averages</span>
-                        <span id="tech-ma-status" class="text-green-400">Strong Buy</span>
-                    </div>
-                    <div class="space-y-1 text-gray-400 text-[11px]">
-                        <div class="flex justify-between"><span>EMA 9 / 21:</span> <span id="tech-ema-fast" class="font-mono text-green-400">Golden Cross</span></div>
-                        <div class="flex justify-between"><span>EMA 50:</span> <span id="tech-ema50" class="font-mono text-gray-200">Price Above</span></div>
-                        <div class="flex justify-between"><span>EMA 200:</span> <span id="tech-ema200" class="font-mono text-gray-200">Price Above</span></div>
-                        <div class="flex justify-between"><span>MA Bias:</span> <span id="tech-ma-bias" class="font-mono text-green-400">Uptrend</span></div>
-                    </div>
-                </div>
-
-                <div class="bg-dark-bg p-3 rounded-lg border border-dark-border space-y-2">
-                    <div class="font-bold text-gray-300 border-b border-dark-border/60 pb-1 flex justify-between">
-                        <span>3. Support & Resistance</span>
-                        <span class="text-yellow-400">Pivot Levels</span>
-                    </div>
-                    <div class="space-y-1 text-gray-400 text-[11px]">
-                        <div class="flex justify-between"><span>Rintangan 2 (R2):</span> <span id="tech-r2" class="font-mono text-red-400">$4,171.35</span></div>
-                        <div class="flex justify-between"><span>Rintangan 1 (R1):</span> <span id="tech-r1" class="font-mono text-red-400">$4,161.35</span></div>
-                        <div class="flex justify-between"><span>Sokongan 1 (S1):</span> <span id="tech-s1" class="font-mono text-green-400">$4,141.35</span></div>
-                        <div class="flex justify-between"><span>Sokongan 2 (S2):</span> <span id="tech-s2" class="font-mono text-green-400">$4,133.35</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- STRATEGY PLAN -->
-        <div class="bg-dark-card border border-dark-border rounded-xl p-4 space-y-3">
-            <div class="border-b border-dark-border pb-2">
-                <h2 class="text-xs md:text-sm font-bold text-yellow-400 uppercase tracking-wide">
-                    💡 SUGGESTED ADVICE & MARKET PLANNING
-                </h2>
-                <p class="text-[10px] text-gray-400">Pelan tindakan dagangan mengikut timeframe pilihan</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                <div class="bg-dark-bg p-3 rounded-lg border border-dark-border space-y-1.5">
-                    <div class="text-yellow-400 font-bold border-b border-dark-border/60 pb-1">🎯 Strategi Entry</div>
-                    <p id="plan-strategy-desc" class="text-gray-300 text-[11px] leading-relaxed">
-                        Tunggu harga membuat retest di zon Orderblock M15 atau Support S1. Pastikan ada rejection candlestick sebelum entry.
-                    </p>
-                </div>
-
-                <div class="bg-dark-bg p-3 rounded-lg border border-dark-border space-y-1.5">
-                    <div class="text-green-400 font-bold border-b border-dark-border/60 pb-1">🛡 Pengurusan Risiko</div>
-                    <ul class="text-gray-300 text-[11px] space-y-1">
-                        <li>• Risiko: <span id="plan-risk-pct">Maksimum 1.5% - 2.0%</span></li>
-                        <li>• Nisbah RR: <span id="plan-rr-ratio">1 : 1.5 hingga 1 : 2</span></li>
-                        <li>• Saiz Lot: <span id="plan-lot-advice">0.01 / $500 capital</span></li>
-                    </ul>
-                </div>
-
-                <div class="bg-dark-bg p-3 rounded-lg border border-dark-border space-y-1.5">
-                    <div class="text-blue-400 font-bold border-b border-dark-border/60 pb-1">⏰ Panduan Sesi</div>
-                    <p id="plan-session-desc" class="text-gray-300 text-[11px] leading-relaxed">
-                        Sesuai didagangkan sepanjang Sesi London & New York (3:30 PM - 11:00 PM).
-                    </p>
-                </div>
-            </div>
-        </div>
-
+  <header class="flex justify-between items-center bg-dark-card border border-dark-border px-3.5 py-2.5 rounded-xl">
+    <div>
+      <h1 class="text-base font-extrabold text-yellow-500">⚡ GOLD (XAU/USD) SIGNAL</h1>
+      <p class="text-[10px] text-gray-400">Signal dikira dari candle live + confluence indicator</p>
     </div>
+    <div class="flex items-center gap-1.5 bg-dark-bg px-2.5 py-1 rounded-lg border border-dark-border">
+      <span id="dot" class="w-2 h-2 rounded-full animate-pulse" style="background:#eab308"></span>
+      <span id="conn" class="text-[10px] font-mono font-bold" style="color:#facc15">CONNECTING</span>
+    </div>
+  </header>
 
-    <!-- SCRIPT TUKAR TIMEFRAME -->
-    <script>
-    (function () {
-        var BASE = 4151.35; // harga rujukan entry
+  <div class="bg-dark-card border border-dark-border rounded-xl p-3 grid grid-cols-2 gap-3 items-end">
+    <div>
+      <div class="text-[10px] text-gray-400 uppercase">Harga live (PAXG + offset)</div>
+      <div id="px" class="text-2xl font-mono font-bold text-yellow-400">--</div>
+    </div>
+    <div>
+      <label class="text-[10px] text-gray-400 uppercase block">Offset broker ($)</label>
+      <input id="off" type="number" step="0.01" inputmode="decimal" class="w-full bg-dark-bg border border-dark-border rounded-lg px-2 py-1 font-mono text-sm text-gray-100">
+    </div>
+    <p class="col-span-2 text-[9px] text-gray-500">Offset = harga broker tolak harga PAXG mentah (<span id="raw">--</span>). Banding dengan harga OANDA kat bawah.</p>
+    <div class="col-span-2 h-[80px] overflow-hidden rounded-lg">
+      <iframe src="https://s.tradingview.com/embed-widget/single-quote/?locale=en&symbol=OANDA%3AXAUUSD&colorTheme=dark&isTransparent=true" style="width:100%;height:100%;border:none"></iframe>
+    </div>
+  </div>
 
-        var SESSION = 'Sesuai didagangkan sepanjang Sesi London & New York (3:30 PM - 11:00 PM).';
+  <div class="bg-dark-card border border-dark-border p-1.5 rounded-xl">
+    <div class="text-[10px] text-gray-400 font-bold uppercase mb-1 px-1">Pilih TF signal</div>
+    <div id="tfs" class="grid grid-cols-6 gap-1 bg-dark-bg p-1 rounded-lg"></div>
+  </div>
 
-        // NOTA: H1 & H4 = nilai placeholder. Tukar ikut data asal kau.
-        var TF = {
-            M5: {
-                title: 'M5 (SCALP) PARAS DAGANGAN', chart: '5', gauge: '5m',
-                tp1: 4, tp2: 8, sl: 4, r1: 5, r2: 10, s1: 4, s2: 8,
-                bias: 'Bullish Scalp', ema: 'EMA 9/21 Cross Up', atr: '$4.20 (Sederhana)', smc: '5m FVG Rejection',
-                desc: 'Timeframe M5 sesuai untuk dagangan pantas (Scalping) dengan sasaran TP/SL nipis.',
-                signal: 'SIGNAL: SCALP BUY (FAST ENTRY)', up: true,
-                osc: 'Bullish Momentum', rsi: '64.2 (Strong)', stoch: '75.0 (High)', macd: 'Bullish Histogram', cci: '+120.5 (Speed)',
-                maSt: 'Bullish Crossover', emaFast: 'EMA 9 > EMA 21', ema50: 'Price Above', ema200: 'Price Above', maBias: 'Short-term Bullish',
-                strategy: 'Gunakan teknik Scalping. Ambil entry BUY apabila harga bertindak balas di EMA 9/21 atau FVG M5.',
-                risk: 'Maksimum 1.0%', rr: '1 : 1 atau 1 : 1.5', lot: '0.01 / $300 - $500',
-                session: 'Fokus berdagang pada waktu puncak volatiliti (London & NY Open).'
-            },
-            M15: {
-                title: 'M15 (INTRADAY) PARAS DAGANGAN', chart: '15', gauge: '15m',
-                tp1: 10, tp2: 20, sl: 10, r1: 10, r2: 20, s1: 10, s2: 18,
-                bias: 'Bullish Momentum', ema: 'Above EMA 50/200', atr: '$12.50', smc: 'Orderblock Zone',
-                desc: 'Timeframe M15 adalah rujukan utama zon entry Intraday dengan nisbah ketepatan tinggi.',
-                signal: 'SIGNAL: BUY / BULLISH CONFIRMED', up: true,
-                osc: 'Bullish', rsi: '58.4 (Bullish)', stoch: '62.1 (Upward)', macd: 'Above Signal', cci: '+104 (Buyers)',
-                maSt: 'Strong Buy', emaFast: 'Golden Cross', ema50: 'Price Above', ema200: 'Price Above', maBias: 'Uptrend',
-                st
+  <div id="sig" class="sig wait space-y-2">
+    <div class="flex justify-between items-center">
+      <span id="sig-title" class="text-sm font-extrabold">MENGAMBIL DATA...</span>
+      <span id="sig-tf" class="text-[10px] font-mono bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded">M15</span>
+    </div>
+    <p id="sig-msg" class="text-xs text-gray-300"></p>
+    <div id="lv" class="grid grid-cols-2 gap-2 text-xs" style="display:none">
+      <div class="lv bg-dark-bg p-2 rounded-lg"><span class="text-[9px] text-gray-400 block">Entry</span><span id="v-entry" class="font-mono font-bold" style="color:#60a5fa">--</span></div>
+      <div class="lv bg-dark-bg p-2 rounded-lg"><span class="text-[9px] text-gray-400 block">Stop Loss</span><span id="v-sl" class="font-mono font-bold dn">--</span></div>
+      <div class="lv bg-dark-bg p-2 rounded-lg"><span class="text-[9px] text-gray-400 block">TP1</span><span id="v-tp1" class="font-mono font-bold up">--</span></div>
+      <div class="lv bg-dark-bg p-2 rounded-lg"><span class="text-[9px] text-gray-400 block">TP2</span><span id="v-tp2" class="font-mono font-bold up">--</span></div>
+    </div>
+    <div id="pnl" class="justify-between items-center text-xs bg-dark-bg p-2 rounded-lg" style="display:none">
+      <span class="text-gray-400"><span id="pl-lbl">Floating:</span> <b id="v-pnl" class="font-mono">--</b></span>
+      <span id="v-time" class="text-[10px] text-gray-500 font-mono">--</span>
+    </div>
+  </div>
+
+  <div class="bg-dark-card border border-dark-border rounded-xl p-3 space-y-2">
+    <div class="flex justify-between items-center">
+      <h2 class="text-xs font-bold text-yellow-400 uppercase">Confluence (TF aktif)</h2>
+      <span id="score" class="font-mono text-xs font-bold nt">--</span>
+    </div>
+    <div id="votes" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px]"></div>
+    <div class="text-[10px] text-gray-400">ATR(14): <span id="atr">--</span> | Signal keluar bila 5 dari 7 sama arah</div>
+  </div>
+
+  <div class="bg-dark-card border border-dark-border rounded-xl p-2.5">
+    <div class="flex justify-between items-center mb-1">
+      <span class="text-[10px] text-gray-400 font-semibold uppercase">Gauge TradingView (rujukan)</span>
+      <span id="gb" class="text-[9px] bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded font-mono font-bold">M15</span>
+    </div>
+    <div class="w-full h-[200px] rounded-lg overflow-hidden"><iframe id="gauge" style="width:100%;height:100%;border:none"></iframe></div>
+  </div>
+
+  <div class="bg-dark-card border border-dark-border rounded-xl p-2.5 h-[440px] flex flex-col">
+    <div class="text-[11px] text-gray-400 font-semibold uppercase mb-1.5 px-1 flex justify-between">
+      <span id="ct">Carta Live (TradingView - M15)</span><span class="text-[9px] text-green-400">● Live</span>
+    </div>
+    <div class="flex-1 rounded-lg overflow-hidden border border-dark-border"><iframe id="chart" style="width:100%;height:100%;border:none"></iframe></div>
+  </div>
+
+  <div class="bg-dark-card border border-dark-border rounded-xl p-3 space-y-1.5">
+    <h2 class="text-xs font-bold text-yellow-400 uppercase">Rekod Signal</h2>
+    <div id="log" class="space-y-1 text-[11px] font-mono"></div>
+  </div>
+
+  <p class="text-[9px] text-gray-500 text-center pb-2">Bukan nasihat kewangan. Data PAXG/USDT (Binance) sebagai proxy XAUUSD, boleh beza beberapa dollar dengan broker.</p>
+</div>
+
+<script>
+(function () {
+  const SYM = 'PAXGUSDT', MIN = 5, REV = -3, SLX = 1.5;
+  const HOSTS = ['https://data-api.binance.vision', 'https://api.binance.com'];
+  const TFS = {
+    M1:{i:'1m',tv:'1',g:'1m'}, M5:{i:'5m',tv:'5',g:'5m'}, M15:{i:'15m',tv:'15',g:'15m'},
+    M30:{i:'30m',tv:'30',g:'30m'}, H1:{i:'1h',tv:'60',g:'1h'}, H4:{i:'4h',tv:'240',g:'4h'}
+  };
+  const MSG = {
+    SL:['SETUP GAGAL ❌','Harga kena SL. Setup dibatalkan.','fail'],
+    FAIL:['SETUP GAGAL ❌','Confluence berbalik arah sebelum TP. Setup dibatalkan.','fail'],
+    BE:['KELUAR DI BE ➖','TP1 dah kena, lepas tu harga patah balik ke entry.','win'],
+    TP2:['TP2 KENA ✅','Setup siap, target penuh tercapai.','win']
+  };
+  const $ = id => document.getElementById(id);
+  let tf = 'M15', price = 0, offset = 0, S = {}, armed = {}, K = {}, A = {}, log = [];
+
+  try {
+    const j = JSON.parse(localStorage.getItem('gs2') || '{}');
+    if (TFS[j.tf]) tf = j.tf;
+    offset = +j.off || 0; S = j.S || {}; log = j.log || [];
+  } catch (e) {}
+  const save = () => { try { localStorage.setItem('gs2', JSON.stringify({tf, off: offset, S, log})); } catch (e) {} };
+  const f = n => '$' + (n + offset).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const d2 = n => (n < 0 ? '-' : '+') + '$' + Math.abs(n).toFixed(2);
+  const sc = n => (n > 0 ? '+' : '') + n;
+  const hhmm = t => new Date(t).toLocaleTimeString('en-GB');
+
+  /* ---------- DATA ---------- */
+  function api(path) {
+    return fetch(HOSTS[0] + path).then(r => { if (!r.ok) throw 0; return r.json(); })
+      .catch(() => fetch(HOSTS[1] + path).then(r => { if (!r.ok) throw 0; return r.json(); }));
+  }
+  function conn(ok) {
+    $('dot').style.background = ok ? '#22c55e' : '#ef4444';
+    $('conn').textContent = ok ? 'LIVE' : 'DATA ERROR';
+    $('conn').style.color = ok ? '#4ade80' : '#f87171';
+  }
+  function loadK(t) {
+    return api('/api/v3/klines?symbol=' + SYM + '&interval=' + TFS[t].i + '&limit=500').then(r => {
+      K[t] = {h: r.map(x => +x[2]), l: r.map(x => +x[3]), c: r.map(x => +x[4])};
+      conn(true);
+    }).catch(() => conn(false));
+  }
+  function pollK() {
+    const set = new Set([tf]);
+    Object.keys(S).forEach(t => { if (!S[t].closed) set.add(t); });
+    return Promise.all([...set].map(loadK)).then(step);
+  }
+  function pollPrice() {
+    api('/api/v3/ticker/price?symbol=' + SYM).then(d => {
+      price = +d.price; conn(true);
+      Object.keys(K).forEach(t => {
+        const k = K[t], n = k.c.length - 1;
+        k.c[n] = price; k.h[n] = Math.max(k.h[n], price); k.l[n] = Math.min(k.l[n], price);
+      });
+      step();
+    }).catch(() => conn(false));
+  }
+
+  /* ---------- INDICATORS ---------- */
+  function ema(a, p) { const k = 2 / (p + 1); let e = a[0]; return a.map((v, i) => i ? (e = v * k + e * (1 - k)) : e); }
+  function rsi(c, p) {
+    let g = 0, l = 0, i, d;
+    for (i = 1; i <= p; i++) { d = c[i] - c[i-1]; if (d > 0) g += d; else l -= d; }
+    g /= p; l /= p;
+    for (i = p + 1; i < c.length; i++) {
+      d = c[i] - c[i-1];
+      g = (g * (p - 1) + (d > 0 ? d : 0)) / p;
+      l = (l * (p - 1) + (d < 0 ? -d : 0)) / p;
+    }
+    return l === 0 ? 100 : 100 - 100 / (1 + g / l);
+  }
+  function atr(h, l, c, p) {
+    const tr = [];
+    for (let i = 1; i < c.length; i++) tr.push(Math.max(h[i] - l[i], Math.abs(h[i] - c[i-1]), Math.abs(l[i] - c[i-1])));
+    let a = 0, i;
+    for (i = 0; i < p; i++) a += tr[i];
+    a /= p;
+    for (i = p; i < tr.length; i++) a = (a * (p - 1) + tr[i]) / p;
+    return a;
+  }
+  function stoch(h, l, c) {
+    const raw = [];
+    for (let i = 13; i < c.length; i++) {
+      let hh = -1e9, ll = 1e9;
+      for (let j = i - 13; j <= i; j++) { hh = Math.max(hh, h[j]); ll = Math.min(ll, l[j]); }
+      raw.push(hh === ll ? 50 : 100 * (c[i] - ll) / (hh - ll));
+    }
+    const k = [];
+    for (let i = 2; i < raw.length; i++) k.push((raw[i] + raw[i-1] + raw[i-2]) / 3);
+    const n = k.length;
+    return {k: k[n-1], d: (k[n-1] + k[n-2] + k[n-3]) / 3};
+  }
+  function cci(h, l, c, p) {
+    const n = c.length, tp = [];
+    for (let i = n - p; i < n; i++) tp.push((h[i] + l[i] + c[i]) / 3);
+    const m = tp.reduce((a, b) => a + b) / p;
+    const md = tp.reduce((a, b) => a + Math.abs(b - m), 0) / p;
+    return md ? (tp[p-1] - m) / (0.015 * md) : 0;
+  }
+  function analyze(d) {
+    const c = d.c, h = d.h, l = d.l, n = c.length;
+    if (n < 210) return null;
+    const e9 = ema(c, 9)[n-1], e21 = ema(c, 21)[n-1], e50 = ema(c, 50)[n-1], e200 = ema(c, 200)[n-1], p = c[n-1];
+    const R = rsi(c, 14), at = atr(h, l, c, 14);
+    const m12 = ema(c, 12), m26 = ema(c, 26);
+    const macd = m12.map((v, i) => v - m26[i]);
+    const hist = macd[n-1] - ema(macd, 9)[n-1];
+    const st = stoch(h, l, c), cc = cci(h, l, c, 20);
+    const sg = (v, a, b) => v > a ? 1 : v < b ? -1 : 0;
+    const V = [
+      ['EMA 9 / 21', e9 > e21 ? 1 : -1, e9 > e21 ? '9 > 21' : '9 < 21'],
+      ['Harga vs EMA 50', p > e50 ? 1 : -1, p > e50 ? 'Atas' : 'Bawah'],
+      ['EMA 50 vs 200', e50 > e200 ? 1 : -1, e50 > e200 ? '50 > 200' : '50 < 200'],
+      ['RSI 14', sg(R, 52, 48), R.toFixed(1)],
+      ['MACD histogram', hist > 0 ? 1 : -1, hist.toFixed(2)],
+      ['Stoch 14,3,3', st.k > st.d ? 1 : -1, st.k.toFixed(0) + ' / ' + st.d.toFixed(0)],
+      ['CCI 20', sg(cc, 50, -50), cc.toFixed(0)]
+    ];
+    return {score: V.reduce((s, v) => s + v[1], 0), V, rsi: R, atr: at};
+  }
+
+  /* ---------- SIGNAL ENGINE ---------- */
+  function open(t, dir, a) {
+    const r = a.atr * SLX;
+    S[t] = {dir, entry: price, sl: price - dir * r, tp1: price + dir * r, tp2: price + dir * 2 * r, t: Date.now(), score: a.score};
+    save();
+  }
+  function close(t, res) {
+    const s = S[t];
+    if (!s || s.closed) return;
+    s.closed = true; s.res = res; s.at = Date.now(); s.px = price;
+    armed[t] = false;
+    log.unshift({tf: t, dir: s.dir, entry: s.entry, res, t: s.at});
+    log = log.slice(0, 8);
+    save();
+  }
+  function check(t) {
+    const s = S[t];
+    if (!s || s.closed || !price) return;
+    const d = s.dir;
+    if (d * (price - s.sl) <= 0) return close(t, s.tp1hit ? 'BE' : 'SL');
+    if (d * (price - s.tp2) >= 0) return close(t, 'TP2');
+    if (!s.tp1hit && d * (price - s.tp1) >= 0) { s.tp1hit = true; s.sl = s.entry; save(); }
+  }
+  function step() {
+    const now = Date.now();
+    Object.keys(S).forEach(t => { if (S[t].closed && now - S[t].at > 45000) { delete S[t]; save(); } });
+    Object.keys(S).forEach(check);
+    Object.keys(K).forEach(t => { A[t] = analyze(K[t]); });
+    Object.keys(S).forEach(t => {
+      const s = S[t], a = A[t];
+      if (s && !s.closed && !s.tp1hit && a && s.dir * a.score <= REV) close(t, 'FAIL');
+    });
+    const a = A[tf];
+    if (a) {
+      if (Math.abs(a.score) < MIN) armed[tf] = true;
+      if (!S[tf] && armed[tf] !== false && Math.abs(a.score) >= MIN && price) {
+        const dir = a.score > 0 ? 1 : -1;
+        if (!(dir > 0 && a.rsi > 78) && !(dir < 0 && a.rsi < 22)) open(tf, dir, a);
+      }
+    }
+    render();
+  }
+
+  /* ---------- UI ---------- */
+  function render() {
+    const s = S[tf], a = A[tf];
+    $('px').textContent = price ? f(price) : '--';
+    $('raw').textContent = price ? price.toFixed(2) : '--';
+    $('sig-tf').textContent = tf;
+    let cls = 'wait', title, msg, show = false;
+    if (!a) { title = 'MENGAMBIL DATA...'; msg = 'Tunggu candle ' + tf + ' dimuat.'; }
+    else if (!s) {
+      title = 'TIADA SETUP';
+      msg = 'Tunggu confluence. Score ' + sc(a.score) + ' (perlu +5 untuk BUY, -5 untuk SELL).' +
+        (armed[tf] === false ? ' Setup lepas baru habis, tunggu score reset dulu.' : '');
+    } else if (s.closed) {
+      const m = MSG[s.res]; title = m[0]; msg = m[1]; cls = m[2]; show = true;
+    } else {
+      cls = s.dir > 0 ? 'buy' : 'sell';
+      title = (s.dir > 0 ? 'BUY' : 'SELL') + (s.tp1hit ? ' | TP1 ✅' : ' AKTIF');
+      msg = s.tp1hit ? 'TP1 kena, SL dah ke Entry (BE). Sasar TP2.' : 'Confluence ' + sc(a.score) + '/7 sama arah. Tunggu TP atau SL.';
+      show = true;
+    }
+    $('sig').className = 'sig ' + cls + (show && s.closed && (s.res === 'SL' || s.res === 'FAIL') ? ' dim' : '');
+    $('sig-title').textContent = title;
+    $('sig-msg').textContent = msg;
+    $('lv').style.display = show ? 'grid' : 'none';
+    $('pnl').style.display = show ? 'flex' : 'none';
+    if (show) {
+      $('v-entry').textContent = f(s.entry); $('v-sl').textContent = f(s.sl);
+      $('v-tp1').textContent = f(s.tp1); $('v-tp2').textContent = f(s.tp2);
+      const pl = ((s.closed ? s.px : price) - s.entry) * s.dir;
+      $('pl-lbl').textContent = s.closed ? 'Hasil:' : 'Floating:';
+      $('v-pnl').textContent = d2(pl);
+      $('v-pnl').className = 'font-mono font-bold ' + (pl >= 0 ? 'up' : 'dn');
+      $('v-time').textContent = 'Mula ' + hhmm(s.t);
+    }
+    $('votes').innerHTML = a ? a.V.map(v =>
+      '<div class="flex justify-between bg-dark-bg px-2 py-1.5 rounded-lg"><span class="text-gray-400">' + v[0] +
+      '</span><span class="font-mono ' + (v[1] > 0 ? 'up' : v[1] < 0 ? 'dn' : 'nt') + '">' + v[2] +
+      (v[1] > 0 ? ' ▲' : v[1] < 0 ? ' ▼' : ' •') + '</span></div>').join('')
+      : '<div class="text-gray-500">Memuatkan...</div>';
+    $('score').textContent = a ? sc(a.score) + ' / 7' : '--';
+    $('score').className = 'font-mono text-xs font-bold ' + (a && a.score >= MIN ? 'up' : a && a.score <= -MIN ? 'dn' : 'nt');
+    $('atr').textContent = a ? '$' + a.atr.toFixed(2) : '--';
+    $('log').innerHTML = log.length ? log.map(x =>
+      '<div class="flex justify-between bg-dark-bg px-2 py-1 rounded"><span>' + hhmm(x.t) + ' ' + x.tf + ' ' +
+      (x.dir > 0 ? 'BUY' : 'SELL') + ' @ ' + f(x.entry) + '</span><span class="' +
+      (x.res === 'TP2' ? 'up' : x.res === 'BE' ? 'nt' : 'dn') + '">' + x.res + '</span></div>').join('')
+      : '<div class="text-gray-500">Belum ada signal.</div>';
+  }
+  const chartURL = k => 'https://s.tradingview.com/widgetembed/?frameElementId=tv&symbol=OANDA%3AXAUUSD&interval=' + TFS[k].tv +
+    '&hidesidetoolbar=0&symboledit=0&saveimage=1&toolbarbg=11151c&bordercolor=1e2430&theme=dark&style=1&timezone=Asia%2FKuala_Lumpur';
+  const gaugeURL = k => 'https://s.tradingview.com/embed-widget/technical-analysis/?locale=en&symbol=OANDA%3AXAUUSD&colorTheme=dark&isTransparent=true&interval=' +
+    TFS[k].g + '&width=100%25&height=100%25';
+
+  function setTF(k) {
+    tf = k; delete K[k]; delete A[k];
+    document.querySelectorAll('.tf-btn').forEach(b => b.classList.toggle('active', b.dataset.tf === k));
+    $('ct').textContent = 'Carta Live (TradingView - ' + k + ')';
+    $('gb').textContent = k;
+    const c = chartURL(k), g = gaugeURL(k);
+    if ($('chart').getAttribute('src') !== c) $('chart').setAttribute('src', c);
+    if ($('gauge').getAttribute('src') !== g) $('gauge').setAttribute('src', g);
+    save(); render(); pollK();
+  }
+
+  /* ---------- INIT ---------- */
+  Object.keys(TFS).forEach(k => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.tf = k; b.textContent = k;
+    b.className = 'tf-btn py-2 rounded-md text-xs text-gray-300 font-semibold';
+    b.onclick = () => setTF(k);
+    $('tfs').appendChild(b);
+  });
+  $('off').value = offset;
+  $('off').addEventListener('input', e => { offset = parseFloat(e.target.value) || 0; save(); render(); });
+  setTF(tf);
+  pollPrice();
+  setInterval(pollPrice, 2000);
+  setInterval(pollK, 12000);
+})();
+</script>
+</body>
+</html>
