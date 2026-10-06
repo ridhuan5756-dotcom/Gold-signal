@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ms" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="google" content="notranslate">
+<title>XAUUSD Signal</title>
+<style>
+*{box-sizing:border-box;margin:0}
+body{background:radial-gradient(circle at 50% -10%,#14213d,#060a14 60%) fixed;color:#e5e7eb;font:14px/1.4 system-ui,sans-serif;min-height:100vh;padding:10px 10px 80px;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:560px;margin:auto}
+.card{background:#0b1222;border:1px solid #1b2a44;border-radius:18px;padding:14px;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.lbl{font-size:10px;letter-spacing:.12em;color:#7f8db0;text-transform:uppercase}
+.big{font-size:30px;font-weight:800}
+.cy{color:#38bdf8}.up{color:#4ade80}.dn{color:#f87171}.nt{color:#9ca3af}.pu{color:#a78bfa}
+#tfs{display:flex;gap:6px;margin:12px 0}
+.tfb{flex:1;padding:10px 0;border-radius:12px;border:1px solid #1b2a44;background:#0b1222;color:#9ca3af;font-weight:700;touch-action:manipulation}
+.tfb.on{background:#16a34a;color:#fff;border-color:#16a34a}
+.sig{border-radius:22px;padding:16px;border:1px solid #1b2a44;background:#0b1222}
+.sig.buy,.sig.win{border-color:#16a34a;box-shadow:0 0 22px rgba(34,197,94,.18)}
+.sig.sell,.sig.fail{border-color:#dc2626;box-shadow:0 0 22px rgba(220,38,38,.18)}
+.badge{padding:10px 18px;border-radius:14px;font-weight:800;border:1px solid #1b2a44;color:#9ca3af}
+.badge.buy{color:#4ade80;border-color:#16a34a;background:#0c2a1c}
+.badge.sell{color:#f87171;border-color:#dc2626;background:#2a0f13}
+.pill{display:inline-block;padding:7px 12px;border-radius:10px;font-size:11px;font-weight:800;letter-spacing:.06em;border:1px solid currentColor;margin:10px 0}
+.run{border:1px solid #14532d;background:#0b1d17;border-radius:16px;padding:14px;margin-bottom:12px}
+.why{border-left:4px solid #7c3aed;background:#0f1530;border-radius:6px 14px 14px 6px;padding:12px 14px;margin-bottom:12px}
+.why ul{margin:6px 0 0 18px;color:#cbd5e1}
+.entry{text-align:center;border:1px solid #155e75;background:#0a1a2c;border-radius:16px;padding:14px;margin-bottom:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.lv{text-align:center;border:1px solid #1b2a44;border-radius:16px;padding:12px;background:#0b1222}
+.lv.hit{border-color:#22c55e;box-shadow:0 0 14px rgba(34,197,94,.25)}
+.lv b{display:block;font-size:20px;margin-top:4px}
+.dim .lv,.dim .entry{opacity:.35;text-decoration:line-through}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:#080d1a;border-top:1px solid #1b2a44}
+nav button{flex:1;background:none;border:0;color:#7f8db0;padding:14px 0;font-size:13px}
+nav button.on{color:#4ade80;font-weight:700}
+.tab{display:none}.tab.on{display:block}
+input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10px;padding:9px;width:100%;font:inherit}
+.btn{padding:9px 18px;background:#16a34a;color:#fff;border:0;border-radius:10px;font-weight:700}
+.vt{display:flex;justify-content:space-between;background:#060a14;padding:8px 10px;border-radius:10px;margin-top:6px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card row">
+    <div><div style="font-size:20px;font-weight:800">XAUUSD</div><div class="lbl">Feed: <span id="src">Memuatkan...</span></div></div>
+    <div style="text-align:right">
+      <div id="px" class="cy" style="font-size:26px;font-weight:800">--</div>
+      <div class="lbl"><span id="dot" style="color:#eab308">●</span> <span id="conn">CONNECTING</span> · <span id="upd">--</span></div>
+    </div>
+  </div>
+  <div id="tfs"></div>
+
+  <div id="tab-sig" class="tab on">
+    <div id="sig" class="sig wait">
+      <div class="row"><span style="font-size:30px;font-weight:800">XAUUSD</span><span id="s-dir" class="badge">WAIT</span></div>
+      <span id="s-pill" class="pill nt">MENGAMBIL DATA...</span>
+      <p id="s-msg" class="nt" style="font-size:12px;margin-top:8px"></p>
+      <div id="s-body" style="display:none">
+        <div class="run row"><div><div class="lbl">Running</div><b id="s-run" class="big up">+0 pip</b></div><span id="s-peak" class="pill up" style="margin:0">peak +0</span></div>
+        <div class="why"><div class="lbl pu">Signal reason</div><b id="s-why1" style="font-size:17px">--</b><ul id="s-why"></ul></div>
+        <div class="entry"><div class="lbl cy">Entry</div><div id="v-entry" class="big cy">--</div></div>
+        <div class="grid2">
+          <div class="lv"><span id="l-sl" class="lbl dn">Stop Loss</span><b id="v-sl" class="dn">--</b></div>
+          <div id="b-t1" class="lv"><span id="l-t1" class="lbl up">TP 1</span><b id="v-t1" class="up">--</b></div>
+          <div id="b-t2" class="lv"><span id="l-t2" class="lbl up">TP 2</span><b id="v-t2" class="up">--</b></div>
+          <div id="b-t3" class="lv"><span id="l-t3" class="lbl up">TP 3</span><b id="v-t3" class="up">--</b></div>
+        </div>
+        <div class="row lbl"><span id="s-time"></span><span id="s-r"></span></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="lbl" style="margin-bottom:6px">Samakan harga dengan broker</div>
+      <div class="row"><input id="bp" type="number" step="0.01" inputmode="decimal" placeholder="Harga broker sekarang"><button id="sync" class="btn">Sync</button></div>
+      <div class="row" style="margin-top:8px"><span class="lbl">Offset ($)</span><input id="off" type="number" step="0.01" inputmode="decimal" style="width:110px"></div>
+    </div>
+    <p class="lbl" style="text-align:center;text-transform:none;letter-spacing:0">Data dari Gold-API & Coinbase. 1 pip = $0.10.</p>
+  </div>
+
+  <div id="tab-cht" class="tab">
+    <div class="card" style="height:440px;padding:8px"><iframe id="chart" style="width:100%;height:100%;border:0;border-radius:12px"></iframe></div>
+    <div class="card">
+      <div class="row"><b class="lbl">Confluence</b><b id="score" class="nt">--</b></div>
+      <div id="votes"></div>
+      <div id="meta" class="lbl" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div id="tab-rec" class="tab">
+    <div class="card"><div class="lbl">Statistik (30 setup terakhir)</div><div id="stat" style="margin-top:6px;font-weight:700"></div></div>
+    <div class="card"><div class="lbl">Rekod signal</div><div id="log"></div></div>
+  </div>
+</div>
+<nav><button id="n-sig" class="on">Signal</button><button id="n-cht">Chart</button><button id="n-rec">Rekod</button></nav>
+
+<script>
+(function () {
+  const MIN = 5, REV = -3, RSI_HI = 68, RSI_LO = 32, CH = 1.5, PIP = 0.1;
+  
+  const TFS = {
+    M1:{cb:60, tv:'1', ms:6e4}, 
+    M5:{cb:300, tv:'5', ms:3e5}, 
+    M15:{cb:900, tv:'15', ms:9e5},
+    M30:{cb:1800, tv:'30', ms:18e5}, 
+    H1:{cb:3600, tv:'60', ms:36e5}, 
+    H4:{cb:21600, tv:'240', ms:144e5}
+  };
+  const HTF = {M1:'M15', M5:'H1', M15:'H1', M30:'H4', H1:'H4', H4:null};
+  
+  const PILL = {SL:['SL HIT · SETUP GAGAL ❌','fail'], FAIL:['SETUP GAGAL · CONFLUENCE BERBALIK ❌','fail'],
+                BE:['KELUAR DI BREAK EVEN ➖','win'], TP3:['TP3 HIT · SETUP SELESAI ✅','win']};
+  const $ = id => document.getElementById(id);
+  let tf = 'M15', price = 0, offset = 0, S = {}, armed = {}, K = {}, A = {}, log = [], tab = 'sig';
+
+  try {
+    const j = JSON.parse(localStorage.getItem('gs3') || '{}');
+    if (TFS[j.tf]) tf = j.tf;
+    offset = +j.off || 0; S = j.S || {}; log = j.log || []; armed = j.armed || {};
+  } catch (e) {}
+  const save = () => { try { localStorage.setItem('gs3', JSON.stringify({tf, off: offset, S, log, armed})); } catch (e) {} };
+  const f = n => (n + offset).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const sc = n => (n > 0 ? '+' : '') + n;
+  const hhmm = t => new Date(t).toLocaleTimeString('en-GB');
+  const pip = (s, p) => Math.round((p - s.entry) * s.dir / PIP);
+
+  /* ---------- DATA FETCHING (FRONTEND SAHAJA) ---------- */
+  async function fetchJSON(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP error');
+    return await r.json();
+  }
+
+  async function get(kind, i, lim, st) {
+    try {
+        if (kind === 'p') {
+            // Gold-API untuk harga spot emas paling tepat
+            const d = await fetchJSON('https://api.gold-api.com/price/XAU');
+            price = d.price;
+            $('src').textContent = 'Gold-API';
+            return price;
+        } else if (kind === 'k') {
+            // Coinbase untuk data candlestick (PAXG-USD proksi XAUUSD)
+            const url = `https://api.exchange.coinbase.com/products/PAXG-USD/candles?granularity=${i.cb}`;
+            const d = await fetchJSON(url);
+            
+            // Format Coinbase: [ time, low, high, open, close, volume ] (Descending)
+            // Kita perlukan: [ time(ms), open, high, low, close ] (Ascending)
+            const rows = d.map(x => [x[0] * 1000, x[3], x[2], x[1], x[4]]).reverse();
+            
+            if (rows.length < 50) throw new Error('Data tak cukup');
+            $('src').textContent = 'Coinbase (PAXG)';
+            return rows;
+        }
+    } catch (e) {
+        console.log("Ralat API:", e);
+        throw e;
+    }
+  }
+
+  function conn(ok) {
+    $('dot').style.color = ok ? '#22c55e' : '#ef4444';
+    $('conn').textContent = ok ? 'LIVE' : 'DATA ERROR';
+  }
+  
+  async function loadK(t) {
+    try { 
+        K[t] = await get('k', TFS[t], 300); 
+        conn(true); 
+    } catch (e) { 
+        conn(false); 
+        $('s-msg').textContent = 'Ralat data. Sila refresh page ini atau tukar ke WiFi/Data lain.';
+    }
+  }
+  
+  async function pollK() {
+    const need = new Set([tf]);
+    if (HTF[tf]) need.add(HTF[tf]);
+    Object.keys(S).forEach(t => { if (!S[t].closed) need.add(t); });
+    await Promise.all([...need].map(loadK));
+    try { await replay(); } catch (e) {}
+    step();
+  }
+  
+  async function pollPrice() {
+    try {
+      price = await get('p'); conn(true);
+      const now = Date.now(); $('upd').textContent = hhmm(now);
+      // Update candle semasa dengan harga live
+      Object.keys(K).forEach(t => {
+        const c = K[t][K[t].length - 1];
+        if (now < c[0] + TFS[t].ms) { c[4] = price; c[2] = Math.max(c[2], price); c[3] = Math.min(c[3], price); }
+      });
+      step();
+    } catch (e) { conn(false); }
+  }
+
+  /* ---------- INDIKATOR ---------- */
+  const ema = (a, p) => { const k = 2 / (p + 1); let e = a[0]; return a.map((v, i) => i ? (e = v * k + e * (1 - k)) : e); };
+  function rsi(c, p) {
+    let g = 0, l = 0, i, d;
+    for (i = 1; i <= p; i++) { d = c[i] - c[i-1]; if (d > 0) g += d; else l -= d; }
+    g /= p; l /= p;
+    for (i = p + 1; i < c.length; i++) {
+      d = c[i] - c[i-1];
+      g = (g * (p - 1) + (d > 0 ? d : 0)) / p;
+      l = (l * (p - 1) + (d < 0 ? -d : 0)) / p;
+    }
+    return l === 0 ? 100 : 100 - 100 / (1 + g / l);
+  }
+  function atr(h, l, c, p) {
+    const tr = [];
+    for (let i = 1; i < c.length; i++) tr.push(Math.max(h[i] - l[i], Math.abs(h[i] - c[i-1]), Math.abs(l[i] - c[i-1])));
+    let a = 0, i;
+    for (i = 0; i < p; i++) a += tr[i];
+    a /= p;
+    for (i = p; i < tr.length; i++) a = (a * (p - 1) + tr[i]) / p;
+    return a;
+  }
+  function stoch(h, l, c) {
+    const raw = [];
+    for (let i = 13; i < c.length; i++) {
+      let hh = -1e9, ll = 1e9;
+      for (let j = i - 13; j <= i; j++) { hh = Math.max(hh, h[j]); ll = Math.min(ll, l[j]); }
+      raw.push(hh === ll ? 50 : 100 * (c[i] - ll) / (hh - ll));
+    }
+    const k = [];
+    for (let i = 2; i < raw.length; i++) k.push((raw[i] + raw[i-1] + raw[i-2]) / 3);
+    const n = k.length;
+    return {k: k[n-1], d: (k[n-1] + k[n-2] + k[n-3]) / 3};
+  }
+  function cci(h, l, c, p) {
+    const n = c.length, tp = [];
+    for (let i = n - p; i < n; i++) tp.push((h[i] + l[i] + c[i]) / 3);
+    const m = tp.reduce((a, b) => a + b) / p;
+    const md = tp.reduce((a, b) => a + Math.abs(b - m), 0) / p;
+    return md ? (tp[p-1] - m) / (0.015 * md) : 0;
+  }
+  function analyze(rows) {
+    const n = rows.length;
+    if (n < 210) return null;
+    const h = rows.map(x => x[2]), l = rows.map(x => x[3]), c = rows.map(x => x[4]);
+    const e9 = ema(c, 9)[n-1], e21 = ema(c, 21)[n-1], e50 = ema(c, 50)[n-1], e200 = ema(c, 200)[n-1], p = c[n-1];
+    const R = rsi(c, 14), at = atr(h, l, c, 14), m12 = ema(c, 12), m26 = ema(c, 26);
+    const macd = m12.map((v, i) => v - m26[i]), hist = macd[n-1] - ema(macd, 9)[n-1];
+    const st = stoch(h, l, c), cc = cci(h, l, c, 20), sg = (v, a, b) => v > a ? 1 : v < b ? -1 : 0;
+    const V = [
+      ['EMA 9 / 21', e9 > e21 ? 1 : -1, e9 > e21 ? '9 > 21' : '9 < 21'],
+      ['Harga vs EMA 50', p > e50 ? 1 : -1, p > e50 ? 'Atas' : 'Bawah'],
+      ['EMA 50 vs 200', e50 > e200 ? 1 : -1, e50 > e200 ? '50 > 200' : '50 < 200'],
+      ['RSI 14', sg(R, 52, 48), R.toFixed(1)],
+      ['MACD histogram', hist > 0 ? 1 : -1, hist.toFixed(2)],
+      ['Stoch 14,3,3', st.k > st.d ? 1 : -1, st.k.toFixed(0) + ' / ' + st.d.toFixed(0)],
+      ['CCI 20', sg(cc, 50, -50), cc.toFixed(0)]
+    ];
+    return {score: V.reduce((s, v) => s + v[1], 0), V, rsi: R, atr: at, e21,
+            bias: p > e50 && e50 > e200 ? 1 : p < e50 && e50 < e200 ? -1 : 0,
+            hi: Math.max(...h.slice(-10)), lo: Math.min(...l.slice(-10))};
+  }
+
+  /* ---------- SIGNAL ENGINE ---------- */
+  function hit(s, lo, hi) {
+    const bad = s.dir > 0 ? lo : hi, good = s.dir > 0 ? hi : lo;
+    s.pk = s.dir > 0 ? Math.max(s.pk, hi) : Math.min(s.pk, lo);
+    if (s.dir * (bad - s.sl) <= 0) return s.stage ? 'BE' : 'SL';
+    if (s.dir * (good - s.tp3) >= 0) return 'TP3';
+    if (s.stage < 2 && s.dir * (good - s.tp2) >= 0) { s.stage = 2; s.sl = s.entry; return 'TP2'; }
+    if (s.stage < 1 && s.dir * (good - s.tp1) >= 0) { s.stage = 1; s.sl = s.entry; return 'TP1'; }
+    return null;
+  }
+  function open(t, dir, a) {
+    const sw = dir > 0 ? a.lo : a.hi, now = Date.now();
+    let r = Math.abs(price - sw) + 0.2 * a.atr;
+    r = Math.min(Math.max(r, a.atr), 2.5 * a.atr);
+    S[t] = {dir, entry: price, sl: price - dir * r, tp1: price + dir * r, tp2: price + dir * 2 * r, tp3: price + dir * 3 * r,
+            r, pk: price, stage: 0, t: now, chk: (Math.floor(now / 6e4) + 1) * 6e4,
+            w: {c: a.score, h: HTF[t], sw, rsi: a.rsi, atr: a.atr}};
+    save();
+  }
+  function close(t, res) {
+    const s = S[t];
+    if (!s || s.closed) return;
+    s.closed = true; s.res = res; s.at = Date.now();
+    s.px = (res === 'SL' || res === 'BE') ? s.sl : res === 'TP3' ? s.tp3 : price;
+    armed[t] = false;
+    log.unshift({tf: t, dir: s.dir, entry: s.entry, res, t: s.at, p: pip(s, s.px)});
+    log = log.slice(0, 30);
+    save();
+  }
+  function check(t) {
+    const s = S[t];
+    if (!s || s.closed || !price) return;
+    const r = hit(s, price, price);
+    if (r === 'TP1' || r === 'TP2') save(); else if (r) close(t, r);
+  }
+  async function replay() {
+    const act = Object.keys(S).filter(t => !S[t].closed);
+    if (!act.length) return;
+    const k1 = await get('k', TFS.M1, 300), now = Date.now();
+    act.forEach(t => {
+      const s = S[t];
+      for (const x of k1) {
+        const o = +x[0];
+        if (o < s.chk || o + 6e4 > now) continue;
+        const r = hit(s, +x[3], +x[2]);
+        if (r === 'TP1' || r === 'TP2') { s.chk = o + 6e4; save(); }
+        else if (r) { close(t, r); break; }
+      }
+    });
+  }
+  function gate(a, dir) {
+    const hf = HTF[tf], H = hf && A[hf] && A[hf].cl;
+    if (hf && !H) return 'tunggu data ' + hf;
+    if (hf && H.bias !== dir) return 'trend ' + hf + ' tak sama arah';
+    if ((dir > 0 && a.rsi > RSI_HI) || (dir < 0 && a.rsi < RSI_LO)) return 'RSI terlampau (' + a.rsi.toFixed(0) + ')';
+    if (Math.abs(price - a.e21) > CH * a.atr) return 'harga dah jauh dari EMA21, jangan kejar';
+    return '';
+  }
+  function step() {
+    const now = Date.now();
+    Object.keys(S).forEach(t => { if (S[t].closed && now - S[t].at > 60000) { delete S[t]; save(); } });
+    Object.keys(S).forEach(check);
+    Object.keys(K).forEach(t => {
+      const r = K[t], cl = r[r.length - 1][0] + TFS[t].ms <= now ? r : r.slice(0, -1);
+      A[t] = {lv: analyze(r), cl: analyze(cl)};
+    });
+    Object.keys(S).forEach(t => {
+      const s = S[t], a = A[t] && A[t].cl;
+      if (!s.closed && !s.stage && a && s.dir * a.score <= REV) close(t, 'FAIL');
+    });
+    const a = A[tf] && A[tf].cl;
+    if (a) {
+      if (Math.abs(a.score) < MIN && armed[tf] === false) { armed[tf] = true; save(); }
+      const d = a.score > 0 ? 1 : -1;
+      if (!S[tf] && armed[tf] !== false && Math.abs(a.score) >= MIN && price && !gate(a, d)) open(tf, d, a);
+    }
+    render();
+  }
+
+  /* ---------- UI ---------- */
+  function render() {
+    const s = S[tf], A0 = A[tf], a = A0 && A0.cl, lv = A0 && A0.lv;
+    $('px').textContent = price ? f(price) : '--';
+    let cls = 'wait', pill, msg = '', show = false, dtx = 'WAIT', dcl = '';
+    
+    if (!a) { 
+        pill = 'MEMUATKAN...'; 
+        msg = 'Mengambil data dari pelayan. Sila tunggu.'; 
+    } else if (!s) {
+      pill = 'MENUNGGU SETUP';
+      if (Math.abs(a.score) >= MIN) {
+        const d = a.score > 0 ? 1 : -1, g = gate(a, d);
+        msg = 'Confluence ' + sc(a.score) + ' (' + (d > 0 ? 'BUY' : 'SELL') + ') ' +
+          (armed[tf] === false ? 'tapi tunggu score reset dulu.' : g ? 'tapi ditapis: ' + g + '.' : 'Syarat lengkap, signal keluar sekejap lagi.');
+      } else msg = 'Tunggu confluence. Score candle tutup ' + sc(a.score) + ' (perlu +5 BUY / -5 SELL).';
+    } else {
+      show = true; dtx = s.dir > 0 ? 'BUY' : 'SELL'; dcl = s.dir > 0 ? 'buy' : 'sell';
+      if (s.closed) { pill = PILL[s.res][0]; cls = PILL[s.res][1]; }
+      else { cls = dcl; pill = s.stage === 0 ? 'SIGNAL RUNNING' : s.stage === 1 ? 'TP1 HIT · BREAK EVEN SET' : 'TP2 HIT · BE KEKAL'; }
+    }
+    
+    $('sig').className = 'sig ' + cls + (show && s.closed && (s.res === 'SL' || s.res === 'FAIL') ? ' dim' : '');
+    $('s-dir').textContent = dtx; $('s-dir').className = 'badge ' + dcl;
+    $('s-pill').textContent = pill;
+    $('s-pill').className = 'pill ' + (cls === 'buy' || cls === 'win' ? 'up' : cls === 'wait' ? 'nt' : 'dn');
+    $('s-msg').textContent = msg; $('s-msg').style.display = show ? 'none' : 'block';
+    $('s-body').style.display = show ? 'block' : 'none';
+    
+    if (show) {
+      const run = pip(s, s.closed ? s.px : price), pk = Math.round(Math.abs(s.pk - s.entry) / PIP);
+      const hn = s.closed && s.res === 'TP3' ? 3 : s.stage, w = s.w;
+      $('s-run').textContent = (run >= 0 ? '+' : '') + run + ' pip';
+      $('s-run').className = 'big ' + (run >= 0 ? 'up' : 'dn');
+      $('s-peak').textContent = 'peak +' + pk;
+      $('v-entry').textContent = f(s.entry);
+      $('v-sl').textContent = f(s.sl);
+      $('l-sl').textContent = 'Stop Loss' + (s.stage ? ' (BE)' : '');
+      
+      [1, 2, 3].forEach(n => {
+        $('v-t' + n).textContent = f(s['tp' + n]);
+        $('b-t' + n).className = 'lv' + (n <= hn ? ' hit' : '');
+        $('l-t' + n).textContent = 'TP ' + n + (n <= hn ? ' ✓' : '');
+      });
+      
+      $('s-why1').textContent = 'Momentum ' + (s.dir > 0 ? 'BUY' : 'SELL') + ' · Confluence ' + sc(w.c) + '/7';
+      $('s-why').innerHTML = '<li>Trend ' + (w.h ? w.h + ' ' + (s.dir > 0 ? 'Bullish' : 'Bearish') : 'ikut TF sendiri') + '</li><li>' +
+        (s.dir > 0 ? 'Swing Low ' : 'Swing High ') + f(w.sw) + '</li><li>RSI ' + w.rsi.toFixed(0) + ' · ATR $' + w.atr.toFixed(2) + '</li>';
+      $('s-time').textContent = 'Mula ' + hhmm(s.t);
+      $('s-r').textContent = '1R = ' + Math.round(s.r / PIP) + ' pip';
+    }
+    
+    $('votes').innerHTML = lv ? lv.V.map(v =>
+      '<div class="vt"><span class="nt">' + v[0] + '</span><span class="' + (v[1] > 0 ? 'up' : v[1] < 0 ? 'dn' : 'nt') + '">' + v[2] +
+      (v[1] > 0 ? ' ▲' : v[1] < 0 ? ' ▼' : ' •') + '</span></div>').join('') : '<div class="nt">Memuatkan...</div>';
+    $('score').textContent = lv && a ? 'Live ' + sc(lv.score) + ' · Tutup ' + sc(a.score) + ' / 7' : '--';
+    $('score').className = a && a.score >= MIN ? 'up' : a && a.score <= -MIN ? 'dn' 
