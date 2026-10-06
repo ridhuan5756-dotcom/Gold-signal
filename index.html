@@ -97,8 +97,8 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
 
 <script>
 (function () {
-  // PASTIKAN LINK INI SAMA DENGAN LINK CLOUDFLARE ANDA
-  const API_BASE = 'https://goldsignalpadu.ridhuan5756.workers.dev';
+  // LINK CLOUDFLARE ANDA YANG BARU (AW)
+  const API_BASE = 'https://aw.ridhuan5756.workers.dev';
   
   const MIN = 5, REV = -3, RSI_HI = 68, RSI_LO = 32, CH = 1.5, PIP = 0.1;
   
@@ -389,4 +389,4 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
     $('log').innerHTML = log.map(x =>
       `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1b2a44;font-size:12px">
         <span class="nt">${hhmm(x.t)} ${x.tf}</span>
-        <span class
+        <span class="${x.p >= 0 ? 'up' : 'dn'}
