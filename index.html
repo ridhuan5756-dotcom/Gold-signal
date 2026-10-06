@@ -15,7 +15,7 @@ body{background:radial-gradient(circle at 50% -10%,#14213d,#060a14 60%) fixed;co
 .big{font-size:30px;font-weight:800}
 .cy{color:#38bdf8}.up{color:#4ade80}.dn{color:#f87171}.nt{color:#9ca3af}.pu{color:#a78bfa}
 #tfs{display:flex;gap:6px;margin:12px 0}
-.tfb{flex:1;padding:10px 0;border-radius:12px;border:1px solid #1b2a44;background:#0b1222;color:#9ca3af;font-weight:700;touch-action:manipulation}
+.tfb{flex:1;padding:10px 0;border-radius:12px;border:1px solid #1b2a44;background:#0b1222;color:#9ca3af;font-weight:700;touch-action:manipulation;cursor:pointer}
 .tfb.on{background:#16a34a;color:#fff;border-color:#16a34a}
 .sig{border-radius:22px;padding:16px;border:1px solid #1b2a44;background:#0b1222}
 .sig.buy,.sig.win{border-color:#16a34a;box-shadow:0 0 22px rgba(34,197,94,.18)}
@@ -33,12 +33,12 @@ body{background:radial-gradient(circle at 50% -10%,#14213d,#060a14 60%) fixed;co
 .lv.hit{border-color:#22c55e;box-shadow:0 0 14px rgba(34,197,94,.25)}
 .lv b{display:block;font-size:20px;margin-top:4px}
 .dim .lv,.dim .entry{opacity:.35;text-decoration:line-through}
-nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:#080d1a;border-top:1px solid #1b2a44}
-nav button{flex:1;background:none;border:0;color:#7f8db0;padding:14px 0;font-size:13px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:#080d1a;border-top:1px solid #1b2a44;z-index:100}
+nav button{flex:1;background:none;border:0;color:#7f8db0;padding:14px 0;font-size:13px;cursor:pointer}
 nav button.on{color:#4ade80;font-weight:700}
 .tab{display:none}.tab.on{display:block}
 input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10px;padding:9px;width:100%;font:inherit}
-.btn{padding:9px 18px;background:#16a34a;color:#fff;border:0;border-radius:10px;font-weight:700}
+.btn{padding:9px 18px;background:#16a34a;color:#fff;border:0;border-radius:10px;font-weight:700;cursor:pointer}
 .vt{display:flex;justify-content:space-between;background:#060a14;padding:8px 10px;border-radius:10px;margin-top:6px;font-size:12px}
 </style>
 </head>
@@ -97,7 +97,6 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
 
 <script>
 (function () {
-  // LINK CLOUDFLARE ANDA YANG BARU (AW)
   const API_BASE = 'https://aw.ridhuan5756.workers.dev';
   
   const MIN = 5, REV = -3, RSI_HI = 68, RSI_LO = 32, CH = 1.5, PIP = 0.1;
@@ -112,8 +111,13 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
   };
   const HTF = {M1:'M15', M5:'H1', M15:'H1', M30:'H4', H1:'H4', H4:null};
   
-  const PILL = {SL:['SL HIT · SETUP GAGAL ❌','fail'], FAIL:['SETUP GAGAL · CONFLUENCE BERBALIK ❌','fail'],
-                BE:['KELUAR DI BREAK EVEN ➖','win'], TP3:['TP3 HIT · SETUP SELESAI ✅','win']};
+  const PILL = {
+    SL:['SL HIT · SETUP GAGAL ❌','fail'], 
+    FAIL:['SETUP GAGAL · CONFLUENCE BERBALIK ❌','fail'],
+    BE:['KELUAR DI BREAK EVEN ➖','win'], 
+    TP3:['TP3 HIT · SETUP SELESAI ✅','win']
+  };
+
   const $ = id => document.getElementById(id);
   let tf = 'M15', price = 0, offset = 0, S = {}, armed = {}, K = {}, A = {}, log = [], tab = 'sig';
 
@@ -122,6 +126,7 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
     if (TFS[j.tf]) tf = j.tf;
     offset = +j.off || 0; S = j.S || {}; log = j.log || []; armed = j.armed || {};
   } catch (e) {}
+
   const save = () => { try { localStorage.setItem('gs3', JSON.stringify({tf, off: offset, S, log, armed})); } catch (e) {} };
   const f = n => (n + offset).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
   const sc = n => (n > 0 ? '+' : '') + n;
@@ -177,8 +182,9 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
       price = await get('p'); conn(true);
       const now = Date.now(); $('upd').textContent = hhmm(now);
       Object.keys(K).forEach(t => {
+        if (!K[t] || !K[t].length) return;
         const c = K[t][K[t].length - 1];
-        if (now < c[0] + TFS[t].ms) { c[4] = price; c[2] = Math.max(c[2], price); c[3] = Math.min(c[3], price); }
+        if (c && now < c[0] + TFS[t].ms) { c[4] = price; c[2] = Math.max(c[2], price); c[3] = Math.min(c[3], price); }
       });
       step();
     } catch (e) { conn(false); }
@@ -308,7 +314,9 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
     Object.keys(S).forEach(t => { if (S[t].closed && now - S[t].at > 60000) { delete S[t]; save(); } });
     Object.keys(S).forEach(check);
     Object.keys(K).forEach(t => {
-      const r = K[t], cl = r[r.length - 1][0] + TFS[t].ms <= now ? r : r.slice(0, -1);
+      const r = K[t];
+      if (!r || !r.length) return;
+      const cl = r[r.length - 1][0] + TFS[t].ms <= now ? r : r.slice(0, -1);
       A[t] = {lv: analyze(r), cl: analyze(cl)};
     });
     Object.keys(S).forEach(t => {
@@ -356,23 +364,19 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
       const run = pip(s, s.closed ? s.px : price), pk = Math.round(Math.abs(s.pk - s.entry) / PIP);
       const hn = s.closed && s.res === 'TP3' ? 3 : s.stage, w = s.w;
       $('s-run').textContent = (run >= 0 ? '+' : '') + run + ' pip';
-      $('s-run').className = 'big ' + (run >= 0 ? 'up' : 'dn');
-      $('s-peak').textContent = 'peak +' + pk;
+      $('s-run').className = 'big ' + (run >= 0 ? 'up' : 'dn');$('s-peak').textContent = 'peak +' + pk;
       $('v-entry').textContent = f(s.entry);
-      $('v-sl').textContent = f(s.sl);
-      $('l-sl').textContent = 'Stop Loss' + (s.stage ? ' (BE)' : '');
+      $('v-sl').textContent = f(s.sl);$('l-sl').textContent = 'Stop Loss' + (s.stage ? ' (BE)' : '');
       
       [1, 2, 3].forEach(n => {
-        $('v-t' + n).textContent = f(s['tp' + n]);
-        $('b-t' + n).className = 'lv' + (n <= hn ? ' hit' : '');
+        $('v-t' + n).textContent = f(s['tp' + n]);$('b-t' + n).className = 'lv' + (n <= hn ? ' hit' : '');
         $('l-t' + n).textContent = 'TP ' + n + (n <= hn ? ' ✓' : '');
       });
       
       $('s-why1').textContent = 'Momentum ' + (s.dir > 0 ? 'BUY' : 'SELL') + ' · Confluence ' + sc(w.c) + '/7';
       $('s-why').innerHTML = '<li>Trend ' + (w.h ? w.h + ' ' + (s.dir > 0 ? 'Bullish' : 'Bearish') : 'ikut TF sendiri') + '</li><li>' +
         (s.dir > 0 ? 'Swing Low ' : 'Swing High ') + f(w.sw) + '</li><li>RSI ' + w.rsi.toFixed(0) + ' · ATR $' + w.atr.toFixed(2) + '</li>';
-      $('s-time').textContent = 'Mula ' + hhmm(s.t);
-      $('s-r').textContent = '1R = ' + Math.round(s.r / PIP) + ' pip';
+      $('s-time').textContent = 'Mula ' + hhmm(s.t);$('s-r').textContent = '1R = ' + Math.round(s.r / PIP) + ' pip';
     }
     
     $('votes').innerHTML = lv ? lv.V.map(v =>
@@ -388,5 +392,4 @@ input{background:#060a14;border:1px solid #1b2a44;color:#e5e7eb;border-radius:10
     $('stat').innerHTML = n ? `Win rate: <span class="up">${Math.round(wins/n*100)}%</span> (${wins}/${n})` : 'Tiada rekod.';
     $('log').innerHTML = log.map(x =>
       `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1b2a44;font-size:12px">
-        <span class="nt">${hhmm(x.t)} ${x.tf}</span>
-        <span class="${x.p >= 0 ? 'up' : 'dn'}
+        <s
